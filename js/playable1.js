@@ -228,9 +228,10 @@ function drawPerson() {
  * Listener for click events on the canvas.
  */
 function onClick(event) {
-  // Ignore if a draw is in progress
+  // Stop any current draw in progress
   if (typeof intervalId !== 'undefined') {
-    return;
+    window.clearInterval(intervalId);
+    intervalId = undefined;
   }
 
   var hit = checkHit(event.layerX, event.layerY);
