@@ -114,7 +114,7 @@ function setupStates() {
 
     // Draw state abbreviation
     ctx.textAlign = 'center';
-    ctx.fillText(STATES[i], currentX + (boxSize / 2), currentY + 16);
+    ctx.fillText(STATES[i], currentX + (boxSize / 2), currentY + (boxSize * .75));
 
     // Store coordinates for click events
     hitBox = {
