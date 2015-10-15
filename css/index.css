@@ -37,6 +37,13 @@ canvas {
   text-align: center;
 }
 
+.playable-section-title {
+  font-family: 'Helvetica';
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
 .section-body {
   font-family: 'forolight';
   font-size: 18px;
