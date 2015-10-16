@@ -29,10 +29,10 @@ playable1 = (function() {
 
   // @todo Get actual data in here
   var STATE_DATA = {
-    'AL': {suicide: 60, accident: 20, total: 100},
     'AK': {suicide: 2, accident: 4, total: 10},
-    'AZ': {suicide: 3, accident: 6, total: 12},
+    'AL': {suicide: 60, accident: 20, total: 100},
     'AR': {suicide: 4, accident: 8, total: 16},
+    'AZ': {suicide: 3, accident: 6, total: 12},
     'CA': {suicide: 5, accident: 10, total: 20},
     'CO': {suicide: 6, accident: 12, total: 24},
     'CT': {suicide: 7, accident: 14, total: 28},
@@ -40,29 +40,29 @@ playable1 = (function() {
     'FL': {suicide: 9, accident: 18, total: 36},
     'GA': {suicide: 10, accident: 20, total: 40},
     'HI': {suicide: 11, accident: 1, total: 44},
+    'IA': {suicide: 15, accident: 9, total: 60},
     'ID': {suicide: 12, accident: 3, total: 48},
     'IL': {suicide: 13, accident: 5, total: 52},
     'IN': {suicide: 14, accident: 7, total: 56},
-    'IA': {suicide: 15, accident: 9, total: 60},
     'KS': {suicide: 16, accident: 11, total: 64},
     'KY': {suicide: 17, accident: 13, total: 68},
     'LA': {suicide: 18, accident: 15, total: 72},
-    'ME': {suicide: 19, accident: 17, total: 76},
-    'MD': {suicide: 20, accident: 19, total: 80},
     'MA': {suicide: 1, accident: 2, total: 84},
+    'MD': {suicide: 20, accident: 19, total: 80},
+    'ME': {suicide: 19, accident: 17, total: 76},
     'MI': {suicide: 2, accident: 4, total: 88},
     'MN': {suicide: 3, accident: 6, total: 92},
-    'MS': {suicide: 4, accident: 8, total: 96},
     'MO': {suicide: 5, accident: 10, total: 100},
+    'MS': {suicide: 4, accident: 8, total: 96},
     'MT': {suicide: 6, accident: 12, total: 24},
+    'NC': {suicide: 13, accident: 5, total: 52},
+    'ND': {suicide: 14, accident: 7, total: 56},
     'NE': {suicide: 7, accident: 14, total: 28},
-    'NV': {suicide: 8, accident: 16, total: 32},
     'NH': {suicide: 9, accident: 18, total: 36},
     'NJ': {suicide: 10, accident: 20, total: 40},
     'NM': {suicide: 11, accident: 1, total: 44},
+    'NV': {suicide: 8, accident: 16, total: 32},
     'NY': {suicide: 12, accident: 3, total: 48},
-    'NC': {suicide: 13, accident: 5, total: 52},
-    'ND': {suicide: 14, accident: 7, total: 56},
     'OH': {suicide: 15, accident: 9, total: 60},
     'OK': {suicide: 16, accident: 11, total: 64},
     'OR': {suicide: 17, accident: 13, total: 68},
@@ -73,11 +73,11 @@ playable1 = (function() {
     'TN': {suicide: 2, accident: 4, total: 10},
     'TX': {suicide: 3, accident: 6, total: 15},
     'UT': {suicide: 4, accident: 8, total: 20},
-    'VT': {suicide: 5, accident: 10, total: 25},
     'VA': {suicide: 6, accident: 12, total: 27},
+    'VT': {suicide: 5, accident: 10, total: 25},
     'WA': {suicide: 7, accident: 14, total: 33},
-    'WV': {suicide: 8, accident: 16, total: 45},
     'WI': {suicide: 9, accident: 18, total: 51},
+    'WV': {suicide: 8, accident: 16, total: 45},
     'WY': {suicide: 10, accident: 20, total: 53}
   };
 
@@ -98,7 +98,7 @@ playable1 = (function() {
   function run() {
     this.hasStarted = true;
 
-    updatePersons('AL');
+    updatePersons(selectedState);
 
     canvas.addEventListener('click', onClick);
     canvas.addEventListener('mousemove', onMouseMove.bind({this: this}));
@@ -181,7 +181,7 @@ playable1 = (function() {
       }
 
       // Draw box
-      if (STATES[i] == highlight) {
+      if (STATES[i] == highlight && highlight != selected) {
         ctx.strokeStyle = '#ff0000';
         ctx.strokeRect(currentX+1, currentY+1, boxSize-2, boxSize-2);
       }
