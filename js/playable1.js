@@ -20,7 +20,7 @@ playable1 = (function() {
 
   var canvas;
   var ctx;
-  var selectedState = STATES[0];
+  var selectedState = 'CA';
   var CANVAS_WIDTH = 648;
   var CANVAS_HEIGHT = 360;
   var stateHitBoxes = [];
@@ -29,56 +29,56 @@ playable1 = (function() {
 
   // @todo Get actual data in here
   var STATE_DATA = {
-    'AK': {suicide: 2, accident: 4, total: 10},
-    'AL': {suicide: 60, accident: 20, total: 100},
-    'AR': {suicide: 4, accident: 8, total: 16},
-    'AZ': {suicide: 3, accident: 6, total: 12},
-    'CA': {suicide: 5, accident: 10, total: 20},
-    'CO': {suicide: 6, accident: 12, total: 24},
-    'CT': {suicide: 7, accident: 14, total: 28},
-    'DE': {suicide: 8, accident: 16, total: 32},
-    'FL': {suicide: 9, accident: 18, total: 36},
-    'GA': {suicide: 10, accident: 20, total: 40},
-    'HI': {suicide: 11, accident: 1, total: 44},
-    'IA': {suicide: 15, accident: 9, total: 60},
-    'ID': {suicide: 12, accident: 3, total: 48},
-    'IL': {suicide: 13, accident: 5, total: 52},
-    'IN': {suicide: 14, accident: 7, total: 56},
-    'KS': {suicide: 16, accident: 11, total: 64},
-    'KY': {suicide: 17, accident: 13, total: 68},
-    'LA': {suicide: 18, accident: 15, total: 72},
-    'MA': {suicide: 1, accident: 2, total: 84},
-    'MD': {suicide: 20, accident: 19, total: 80},
-    'ME': {suicide: 19, accident: 17, total: 76},
-    'MI': {suicide: 2, accident: 4, total: 88},
-    'MN': {suicide: 3, accident: 6, total: 92},
-    'MO': {suicide: 5, accident: 10, total: 100},
-    'MS': {suicide: 4, accident: 8, total: 96},
-    'MT': {suicide: 6, accident: 12, total: 24},
-    'NC': {suicide: 13, accident: 5, total: 52},
-    'ND': {suicide: 14, accident: 7, total: 56},
-    'NE': {suicide: 7, accident: 14, total: 28},
-    'NH': {suicide: 9, accident: 18, total: 36},
-    'NJ': {suicide: 10, accident: 20, total: 40},
-    'NM': {suicide: 11, accident: 1, total: 44},
-    'NV': {suicide: 8, accident: 16, total: 32},
-    'NY': {suicide: 12, accident: 3, total: 48},
-    'OH': {suicide: 15, accident: 9, total: 60},
-    'OK': {suicide: 16, accident: 11, total: 64},
-    'OR': {suicide: 17, accident: 13, total: 68},
-    'PA': {suicide: 18, accident: 15, total: 72},
-    'RI': {suicide: 19, accident: 17, total: 76},
-    'SC': {suicide: 20, accident: 19, total: 80},
-    'SD': {suicide: 1, accident: 2, total: 6},
-    'TN': {suicide: 2, accident: 4, total: 10},
-    'TX': {suicide: 3, accident: 6, total: 15},
-    'UT': {suicide: 4, accident: 8, total: 20},
-    'VA': {suicide: 6, accident: 12, total: 27},
-    'VT': {suicide: 5, accident: 10, total: 25},
-    'WA': {suicide: 7, accident: 14, total: 33},
-    'WI': {suicide: 9, accident: 18, total: 51},
-    'WV': {suicide: 8, accident: 16, total: 45},
-    'WY': {suicide: 10, accident: 20, total: 53}
+    'AK': {suicide_normalized: 4, accident_normalized: 1, total_normalized: 5, suicide_raw: 424, accident_raw: 11, total_raw: 546},
+    'AL': {suicide_normalized: 16, accident_normalized: 1, total_normalized: 27, suicide_raw: 1910, accident_raw: 99, total_raw: 3258},
+    'AR': {suicide_normalized: 10, accident_normalized: 1, total_normalized: 16, suicide_raw: 1194, accident_raw: 50, total_raw: 1872},
+    'AZ': {suicide_normalized: 21, accident_normalized: 1, total_normalized: 31, suicide_raw: 2612, accident_raw: 31, total_raw: 3782},
+    'CA': {suicide_normalized: 51, accident_normalized: 1, total_normalized: 100, suicide_raw: 6176, accident_raw: 115, total_raw: 12033},
+    'CO': {suicide_normalized: 15, accident_normalized: 1, total_normalized: 20, suicide_raw: 1892, accident_raw: 35, total_raw: 2419},
+    'CT': {suicide_normalized: 4, accident_normalized: 0, total_normalized: 7, suicide_raw: 424, accident_raw: 0, total_raw: 807},
+    'DE': {suicide_normalized: 2, accident_normalized: 0, total_normalized: 3, suicide_raw: 195, accident_raw: 0, total_raw: 361},
+    'FL': {suicide_normalized: 50, accident_normalized: 1, total_normalized: 79, suicide_raw: 6060, accident_raw: 89, total_raw: 9561},
+    'GA': {suicide_normalized: 25, accident_normalized: 1, total_normalized: 42, suicide_raw: 2957, accident_raw: 129, total_raw: 5003},
+    'HI': {suicide_normalized: 2, accident_normalized: 0, total_normalized: 2, suicide_raw: 150, accident_raw: 0, total_raw: 183},
+    'IA': {suicide_normalized: 7, accident_normalized: 0, total_normalized: 8, suicide_raw: 758, accident_raw: 12, total_raw: 903},
+    'ID': {suicide_normalized: 6, accident_normalized: 0, total_normalized: 7, suicide_raw: 725, accident_raw: 21, total_raw: 824},
+    'IL': {suicide_normalized: 16, accident_normalized: 1, total_normalized: 37, suicide_raw: 1889, accident_raw: 77, total_raw: 4473},
+    'IN': {suicide_normalized: 16, accident_normalized: 1, total_normalized: 25, suicide_raw: 1902, accident_raw: 61, total_raw: 3004},
+    'KS': {suicide_normalized: 8, accident_normalized: 1, total_normalized: 11, suicide_raw: 981, accident_raw: 29, total_raw: 1337},
+    'KY': {suicide_normalized: 15, accident_normalized: 1, total_normalized: 20, suicide_raw: 1779, accident_raw: 69, total_raw: 2449},
+    'LA': {suicide_normalized: 13, accident_normalized: 1, total_normalized: 29, suicide_raw: 1545, accident_raw: 146, total_raw: 3460},
+    'MA': {suicide_normalized: 4, accident_normalized: 0, total_normalized: 8, suicide_raw: 517, accident_raw: 0, total_raw: 970},
+    'MD': {suicide_normalized: 8, accident_normalized: 1, total_normalized: 19, suicide_raw: 993, accident_raw: 15, total_raw: 2247},
+    'ME': {suicide_normalized: 3, accident_normalized: 0, total_normalized: 4, suicide_raw: 457, accident_raw: 0, total_raw: 537},
+    'MI': {suicide_normalized: 21, accident_normalized: 1, total_normalized: 39, suicide_raw: 2517, accident_raw: 43, total_raw: 4644},
+    'MN': {suicide_normalized: 10, accident_normalized: 1, total_normalized: 13, suicide_raw: 1251, accident_raw: 17, total_raw: 1570},
+    'MO': {suicide_normalized: 18, accident_normalized: 1, total_normalized: 29, suicide_raw: 2104, accident_raw: 72, total_raw: 3462},
+    'MS': {suicide_normalized: 9, accident_normalized: 1, total_normalized: 17, suicide_raw: 1099, accident_raw: 67, total_raw: 2065},
+    'MT': {suicide_normalized: 5, accident_normalized: 0, total_normalized: 6, suicide_raw: 593, accident_raw: 17, total_raw: 674},
+    'NC': {suicide_normalized: 24, accident_normalized: 1, total_normalized: 39, suicide_raw: 2915, accident_raw: 115, total_raw: 4675},
+    'ND': {suicide_normalized: 2, accident_normalized: 0, total_normalized: 2, suicide_raw: 246, accident_raw: 0, total_raw: 285},
+    'NE': {suicide_normalized: 3, accident_normalized: 1, total_normalized: 5, suicide_raw: 443, accident_raw: 19, total_raw: 648},
+    'NH': {suicide_normalized: 3, accident_normalized: 0, total_normalized: 3, suicide_raw: 356, accident_raw: 11, total_raw: 420},
+    'NJ': {suicide_normalized: 6, accident_normalized: 1, total_normalized: 16, suicide_raw: 722, accident_raw: 13, total_raw: 1888},
+    'NM': {suicide_normalized: 7, accident_normalized: 1, total_normalized: 10, suicide_raw: 877, accident_raw: 10, total_raw: 1256},
+    'NV': {suicide_normalized: 10, accident_normalized: 1, total_normalized: 13, suicide_raw: 1127, accident_raw: 13, total_raw: 1526},
+    'NY': {suicide_normalized: 16, accident_normalized: 1, total_normalized: 32, suicide_raw: 1945, accident_raw: 27, total_raw: 3848},
+    'OH': {suicide_normalized: 25, accident_normalized: 1, total_normalized: 41, suicide_raw: 3034, accident_raw: 55, total_raw: 4927},
+    'OK': {suicide_normalized: 14, accident_normalized: 1, total_normalized: 20, suicide_raw: 1660, accident_raw: 69, total_raw: 2417},
+    'OR': {suicide_normalized: 12, accident_normalized: 1, total_normalized: 15, suicide_raw: 1475, accident_raw: 19, total_raw: 1783},
+    'PA': {suicide_normalized: 28, accident_normalized: 1, total_normalized: 47, suicide_raw: 3382, accident_raw: 139, total_raw: 5649},
+    'RI': {suicide_normalized: 1, accident_normalized: 0, total_normalized: 1, suicide_raw: 110, accident_raw: 0, total_raw: 180},
+    'SC': {suicide_normalized: 15, accident_normalized: 1, total_normalized: 24, suicide_raw: 1721, accident_raw: 78, total_raw: 2841},
+    'SD': {suicide_normalized: 3, accident_normalized: 0, total_normalized: 3, suicide_raw: 272, accident_raw: 0, total_raw: 310},
+    'TN': {suicide_normalized: 20, accident_normalized: 1, total_normalized: 32, suicide_raw: 2478, accident_raw: 103, total_raw: 3905},
+    'TX': {suicide_normalized: 57, accident_normalized: 1, total_normalized: 90, suicide_raw: 6910, accident_raw: 194, total_raw: 10834},
+    'UT': {suicide_normalized: 10, accident_normalized: 0, total_normalized: 11, suicide_raw: 1121, accident_raw: 10, total_raw: 1285},
+    'VA': {suicide_normalized: 20, accident_normalized: 1, total_normalized: 29, suicide_raw: 2368, accident_raw: 45, total_raw: 3447},
+    'VT': {suicide_normalized: 2, accident_normalized: 0, total_normalized: 2, suicide_raw: 245, accident_raw: 0, total_raw: 269},
+    'WA': {suicide_normalized: 16, accident_normalized: 1, total_normalized: 21, suicide_raw: 1971, accident_raw: 33, total_raw: 2546},
+    'WI': {suicide_normalized: 13, accident_normalized: 1, total_normalized: 17, suicide_raw: 1514, accident_raw: 19, total_raw: 1999},
+    'WV': {suicide_normalized: 7, accident_normalized: 1, total_normalized: 9, suicide_raw: 833, accident_raw: 23, total_raw: 1109},
+    'WY': {suicide_normalized: 3, accident_normalized: 0, total_normalized: 3, suicide_raw: 358, accident_raw: 13, total_raw: 407}
   };
 
   /**
@@ -254,6 +254,7 @@ playable1 = (function() {
     var paddingY = 4;
     var totalPersons = 100;
     var onefifth = totalPersons / 5;
+    var numSuicideAccident;
     var img;
     var imgPerson = document.getElementById('img-person');
     var imgSuicide = document.getElementById('img-person-suicide');
@@ -269,10 +270,22 @@ playable1 = (function() {
       console.log('playable1.drawPerson() has no data for ' + this.state);
       haltDrawing = true;
     }
-    // Done Drawing
-    else if (currPerson >= STATE_DATA[this.state].total) {
-      haltDrawing = true;
+    // Stop drawing once we hit the total
+    else {
+      // For cases where the estimations end up making it look like suicides and
+      // accidental deaths account for 100% of deaths, throw in another 'other'
+      // person to clarify that it's not actually 100%.
+      /* ... ehhh actualy maybe don't do this. we'll be showing the totals anyway
+      numSuicideAccident = STATE_DATA[this.state].suicide_normalized + STATE_DATA[this.state].accident_normalized;
+      if (STATE_DATA[this.state].total_normalized == numSuicideAccident) {
+        haltDrawing = currPerson > STATE_DATA[this.state].total_normalized;
+      }
+      else {
+      */
+        haltDrawing = currPerson >= STATE_DATA[this.state].total_normalized
+      //}
     }
+
 
     if (haltDrawing) {
       window.clearInterval(intervalId);
@@ -301,11 +314,11 @@ playable1 = (function() {
 
     // Determine image source
     img = imgPerson;
-    if (i < STATE_DATA[this.state].suicide) {
+    if (i < STATE_DATA[this.state].suicide_normalized) {
       img = imgSuicide;
     }
-    else if (i >= STATE_DATA[this.state].suicide &&
-      i < STATE_DATA[this.state].suicide + STATE_DATA[this.state].accident) {
+    else if (i >= STATE_DATA[this.state].suicide_normalized &&
+      i < STATE_DATA[this.state].suicide_normalized + STATE_DATA[this.state].accident_normalized) {
       img = imgAccident;
     }
 
