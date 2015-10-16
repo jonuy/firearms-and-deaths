@@ -10,6 +10,8 @@
  * the most firearm deaths overall, that'll have 100 shown. And if VA has only
  * 10% of that, then only show 10 there.
  *
+ * Canvas size: 648 x 360 (TBD)
+ *
  */
 
 (function() {
@@ -22,7 +24,7 @@ var ctx = canvas.getContext('2d');
 
 // @todo Get actual data in here
 var STATE_DATA = {
-  'AL': {suicide: 1, accident: 2, total: 5},
+  'AL': {suicide: 60, accident: 20, total: 100},
   'AK': {suicide: 2, accident: 4, total: 10},
   'AZ': {suicide: 3, accident: 6, total: 12},
   'AR': {suicide: 4, accident: 8, total: 16},
@@ -78,10 +80,37 @@ var STATE_DATA = {
  * This is the function that's actually run.
  */
 function run() {
+  setupLegend();
   setupStates();
   updatePersons('AL');
 
   canvas.addEventListener('click', onClick);
+  canvas.addEventListener('mousemove', onMouseMove);
+}
+
+/**
+ * Draw the legend section of the canvas.
+ */
+function setupLegend() {
+  ctx.font = '14px Helvetica';
+  ctx.textAlign = 'left';
+
+  // Suicide label
+  ctx.fillStyle = '#387567';
+  ctx.fillRect(476, 108, 24, 24);
+  ctx.fillText('Suicide', 512, 126);
+
+  // Unintentional label
+  ctx.fillStyle = '#D1A732';
+  ctx.fillRect(476, 152, 24, 24);
+  ctx.fillText('Unintentional Death', 512, 170);
+
+  // Other
+  ctx.strokeStyle = '#000000';
+  ctx.strokeRect(476, 196, 24, 24);
+  ctx.strokeRect(477, 197, 22, 22);
+  ctx.fillStyle = '#000000';
+  ctx.fillText('Other', 512, 214);
 }
 
 /**
@@ -97,6 +126,9 @@ function setupStates() {
   var boxSize = 24;
 
   ctx.font = '12px Helvetica';
+  ctx.strokeStyle = '#000000';
+  ctx.fillStyle = '#000000';
+  ctx.textAlign = 'center';
 
   for (i = 0; i < STATES.length; i++) {
     // First half of states on one line, second half below it
@@ -113,7 +145,6 @@ function setupStates() {
     ctx.strokeRect(currentX, currentY, boxSize, boxSize);
 
     // Draw state abbreviation
-    ctx.textAlign = 'center';
     ctx.fillText(STATES[i], currentX + (boxSize / 2), currentY + (boxSize * .75));
 
     // Store coordinates for click events
@@ -138,7 +169,7 @@ function updatePersons(state) {
   currPerson = 0;
 
   // Clear any persons drawn previously
-  ctx.clearRect(24, 100, 520, 220);
+  ctx.clearRect(24, 100, 448, 220);
 
   intervalId = window.setInterval(drawPerson.bind({state: state}), 20);
 }
@@ -158,6 +189,8 @@ function drawPerson() {
   var startPosY = 100;
   var imgWidth = 20;
   var imgHeight = 40;
+  var paddingX = 2;
+  var paddingY = 4;
   var totalPersons = 100;
   var onefifth = totalPersons / 5;
   var img;
@@ -217,8 +250,8 @@ function drawPerson() {
 
   xAdjust = onefifth * row;
   // + 2px for padding in between persons
-  currentX = ((i - xAdjust) * (imgWidth + 2)) + startPosX;
-  currentY = startPosY + (row * (imgHeight + 4));
+  currentX = ((i - xAdjust) * (imgWidth + paddingX)) + startPosX;
+  currentY = startPosY + (row * (imgHeight + paddingY));
 
   ctx.drawImage(img, currentX, currentY, imgWidth, imgHeight);
   currPerson++;
@@ -238,6 +271,13 @@ function onClick(event) {
   if (hit) {
     updatePersons(hit);
   }
+}
+
+/**
+ * Listener for mouse movements on the canvas.
+ */
+function onMouseMove(event) {
+  ;
 }
 
 /**
