@@ -20,10 +20,12 @@ playable1 = (function() {
 
   var canvas;
   var ctx;
+  var selectedState = STATES[0];
   var CANVAS_WIDTH = 648;
   var CANVAS_HEIGHT = 360;
   var stateHitBoxes = [];
   var hasStarted = false;
+  var hasStateHighlight = false;
 
   // @todo Get actual data in here
   var STATE_DATA = {
@@ -87,7 +89,7 @@ playable1 = (function() {
     ctx = canvas.getContext('2d');
 
     setupLegend();
-    setupStates();
+    drawStates(selectedState, undefined, true);
   }
 
   /**
@@ -99,7 +101,7 @@ playable1 = (function() {
     updatePersons('AL');
 
     canvas.addEventListener('click', onClick);
-    canvas.addEventListener('mousemove', onMouseMove);
+    canvas.addEventListener('mousemove', onMouseMove.bind({this: this}));
   }
 
   /**
@@ -128,9 +130,14 @@ playable1 = (function() {
   }
 
   /**
-   * Initial draw of the states.
+   * Draws updates to the state boxes. Yea, there'll be a little copy/paste
+   * action that's about to happen.
+   *
+   * @param selected State that's selected
+   * @param highlight State to highlight
+   * @param isInit true if this is the initial draw of the states
    */
-  function setupStates() {
+  function drawStates(selected, highlight, isInit) {
     var i;
     var currentX;
     var currentY;
@@ -139,12 +146,30 @@ playable1 = (function() {
     var startPosY = 24;
     var boxSize = 24;
 
+    if (highlight) {
+      hasStateHighlight = true;
+    }
+    else {
+      hasStateHighlight = false;
+    }
+
+    if (selected) {
+      selectedState = selected;
+    }
+    else {
+      console.log('WARNING: playable1.drawStates called without a selected state');
+    }
+
+    ctx.clearRect(startPosX, startPosY, boxSize * 25, boxSize * 2);
+
     ctx.font = '12px Helvetica';
-    ctx.strokeStyle = '#000000';
-    ctx.fillStyle = '#000000';
     ctx.textAlign = 'center';
 
     for (i = 0; i < STATES.length; i++) {
+      // Reset styles
+      ctx.strokeStyle = '#000000';
+      ctx.fillStyle = '#000000';
+      
       // First half of states on one line, second half below it
       if (i < STATES.length / 2) {
         currentX = (i * boxSize) + startPosX;
@@ -156,26 +181,48 @@ playable1 = (function() {
       }
 
       // Draw box
+      if (STATES[i] == highlight) {
+        ctx.strokeStyle = '#ff0000';
+        ctx.strokeRect(currentX+1, currentY+1, boxSize-2, boxSize-2);
+      }
+
+      if (STATES[i] == selected) {
+        ctx.fillRect(currentX, currentY, boxSize, boxSize);
+      }
+
       ctx.strokeRect(currentX, currentY, boxSize, boxSize);
 
       // Draw state abbreviation
+      if (STATES[i] == selected) {
+        ctx.fillStyle = '#fefefe';
+      }
+      else if (STATES[i] == highlight) {
+        ctx.fillStyle = '#ff0000';
+      }
+      else {
+        ctx.fillStyle = '#000000';
+      }
+
       ctx.fillText(STATES[i], currentX + (boxSize / 2), currentY + (boxSize * .75));
 
       // Store coordinates for click events
-      hitBox = {
-        state: STATES[i],
-        xmin: currentX,
-        xmax: currentX + boxSize,
-        ymin: currentY,
-        ymax: currentY + boxSize
-      };
-      stateHitBoxes[stateHitBoxes.length] = hitBox;
+      if (isInit) {
+        hitBox = {
+          state: STATES[i],
+          xmin: currentX,
+          xmax: currentX + boxSize,
+          ymin: currentY,
+          ymax: currentY + boxSize
+        };
+        stateHitBoxes[stateHitBoxes.length] = hitBox;
+      }
     }
   }
 
   /**
    * Initial draw of the peoples.
    */
+  // @todo More properly handle these two vars
   var currPerson;
   var intervalId;
   function updatePersons(state) {
@@ -284,6 +331,7 @@ playable1 = (function() {
     var hit = checkHit(event.layerX, event.layerY);
     if (hit) {
       updatePersons(hit);
+      drawStates(hit, hit, false);
     }
   }
 
@@ -291,7 +339,14 @@ playable1 = (function() {
    * Listener for mouse movements on the canvas.
    */
   function onMouseMove(event) {
-    ;
+    // Highlight states on hover over
+    var hit = checkHit(event.layerX, event.layerY);
+    if (hit) {
+      drawStates(selectedState, hit, false);
+    }
+    else if (hasStateHighlight) {
+      drawStates(selectedState, undefined, false); 
+    }
   }
 
   /**
