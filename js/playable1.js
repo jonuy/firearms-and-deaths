@@ -250,7 +250,7 @@ playable1 = (function() {
     var paddingY = 10
     var startY = 354;
     var labelX = 36;
-    var numX = 178 + fontSize * 5 /*eh, the 5 is arbitrary*/;
+    var numX = 200 + fontSize * 5 /*eh, the 5 is arbitrary*/;
     var totalNum;
     var suicideNum;
     var accidentNum;
@@ -280,13 +280,13 @@ playable1 = (function() {
     if (drawNumsAnimTime > drawNumsTotalAnimTime) {
       // Just make sure the final #s are actually drawn
       ctx.fillStyle = blueColor;
-      ctx.fillText(STATE_DATA[this.state].suicide_raw, numX, suicideLineY);
+      ctx.fillText(STATE_DATA[this.state].suicide_raw + ' persons', numX, suicideLineY);
 
       ctx.fillStyle = yellowColor;
-      ctx.fillText(STATE_DATA[this.state].accident_raw, numX, accidentLineY);
+      ctx.fillText(STATE_DATA[this.state].accident_raw + ' persons', numX, accidentLineY);
 
       ctx.fillStyle = blackColor;
-      ctx.fillText(STATE_DATA[this.state].total_raw, numX, totalLineY);
+      ctx.fillText(STATE_DATA[this.state].total_raw + ' persons', numX, totalLineY);
 
       // Done animating
       window.clearInterval(drawNumsIntervalId);
@@ -296,15 +296,15 @@ playable1 = (function() {
 
       suicideNum = Math.floor(STATE_DATA[this.state].suicide_raw * (drawNumsAnimTime / drawNumsTotalAnimTime));
       ctx.fillStyle = blueColor;
-      ctx.fillText(suicideNum, numX, suicideLineY);
+      ctx.fillText(suicideNum + ' persons', numX, suicideLineY);
 
       accidentNum = Math.floor(STATE_DATA[this.state].accident_raw * (drawNumsAnimTime / drawNumsTotalAnimTime));
       ctx.fillStyle = yellowColor;
-      ctx.fillText(accidentNum, numX, accidentLineY);
+      ctx.fillText(accidentNum + ' persons', numX, accidentLineY);
 
       totalNum = Math.floor(STATE_DATA[this.state].total_raw * (drawNumsAnimTime / drawNumsTotalAnimTime));
       ctx.fillStyle = blackColor;
-      ctx.fillText(totalNum, numX, totalLineY);
+      ctx.fillText(totalNum + ' persons', numX, totalLineY);
     }
   }
 
