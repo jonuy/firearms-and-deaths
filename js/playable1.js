@@ -34,6 +34,11 @@ playable1 = (function() {
   var drawNumsAnimTime = 0;
   var drawNumsIntervalId;
 
+  // Colors
+  var blueColor = '#387567';
+  var yellowColor = '#D1A732';
+  var blackColor = '#000000';
+
   // Data from 2010-2013 retrieved from http://webappa.cdc.gov/sasweb/ncipc/dataRestriction_inj.html
   var STATE_DATA = {
     'AK': {name: 'Alaska', suicide_normalized: 4, accident_normalized: 1, total_normalized: 5, suicide_raw: 424, accident_raw: 11, total_raw: 546},
@@ -119,12 +124,12 @@ playable1 = (function() {
     ctx.textAlign = 'left';
 
     // Suicide label
-    ctx.fillStyle = '#387567';
+    ctx.fillStyle = blueColor;
     ctx.fillRect(476, 108, 24, 24);
     ctx.fillText('Suicide', 512, 126);
 
     // Unintentional label
-    ctx.fillStyle = '#D1A732';
+    ctx.fillStyle = yellowColor;
     ctx.fillRect(476, 152, 24, 24);
     ctx.fillText('Unintentional Death', 512, 170);
 
@@ -253,30 +258,35 @@ playable1 = (function() {
     ctx.clearRect(labelX, startY, 624, 200);
 
     ctx.font = '14px Helvetica';
-    ctx.fillStyle = '#000000';
+    ctx.fillStyle = blackColor;
     ctx.textAlign = 'left';
 
-    var totalLineY =  startY + fontSize;
-    var suicideLineY = startY + fontSize + paddingY + fontSize;
-    var accidentLineY = startY + ((fontSize + paddingY) * 2) + fontSize;
+    var suicideLineY =  startY + fontSize;
+    var accidentLineY = startY + fontSize + paddingY + fontSize;
+    var totalLineY = startY + ((fontSize + paddingY) * 2) + fontSize;
 
     // Draw total # label
-    ctx.fillText('Total firearm deaths:', labelX, totalLineY);
+    ctx.fillText('Suicide:', labelX, suicideLineY);
 
     // Draw suicide # label
-    ctx.fillText('by suicide:', labelX, suicideLineY);
+    ctx.fillText('Unintentional:', labelX, accidentLineY);
 
     // Draw accident # label
-    ctx.fillText('unintentional:', labelX, accidentLineY);
+    ctx.fillText('All firearm deaths:', labelX, totalLineY);
 
     // Numbers align right
     ctx.textAlign = 'right';
 
     if (drawNumsAnimTime > drawNumsTotalAnimTime) {
       // Just make sure the final #s are actually drawn
-      ctx.fillText(STATE_DATA[this.state].total_raw, numX, totalLineY);
+      ctx.fillStyle = blueColor;
       ctx.fillText(STATE_DATA[this.state].suicide_raw, numX, suicideLineY);
+
+      ctx.fillStyle = yellowColor;
       ctx.fillText(STATE_DATA[this.state].accident_raw, numX, accidentLineY);
+
+      ctx.fillStyle = blackColor;
+      ctx.fillText(STATE_DATA[this.state].total_raw, numX, totalLineY);
 
       // Done animating
       window.clearInterval(drawNumsIntervalId);
@@ -284,14 +294,17 @@ playable1 = (function() {
     else {
       drawNumsAnimTime += drawNumsAnimInterval;
 
-      totalNum = Math.floor(STATE_DATA[this.state].total_raw * (drawNumsAnimTime / drawNumsTotalAnimTime));
-      ctx.fillText(totalNum, numX, totalLineY);
-
       suicideNum = Math.floor(STATE_DATA[this.state].suicide_raw * (drawNumsAnimTime / drawNumsTotalAnimTime));
+      ctx.fillStyle = blueColor;
       ctx.fillText(suicideNum, numX, suicideLineY);
 
       accidentNum = Math.floor(STATE_DATA[this.state].accident_raw * (drawNumsAnimTime / drawNumsTotalAnimTime));
+      ctx.fillStyle = yellowColor;
       ctx.fillText(accidentNum, numX, accidentLineY);
+
+      totalNum = Math.floor(STATE_DATA[this.state].total_raw * (drawNumsAnimTime / drawNumsTotalAnimTime));
+      ctx.fillStyle = blackColor;
+      ctx.fillText(totalNum, numX, totalLineY);
     }
   }
 

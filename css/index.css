@@ -37,6 +37,11 @@ canvas {
   text-align: center;
 }
 
+.playable-section-instructions {
+  color: #a0a0a0;
+  font-style: italic;
+  margin: 6px 0;
+}
 .playable-section-title {
   font-family: 'Helvetica';
   font-size: 18px;
