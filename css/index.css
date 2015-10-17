@@ -28,15 +28,31 @@ canvas {
 }
 
 .page-title {
-  background-color: #1e1e1e;
   color: #fefefe;
   font-family: 'Helvetica';
   font-size: 24px;
   letter-spacing: 8px;
+}
+
+.page-title-date {
+  color: #fefefe;
+  font-family: 'Helvetica';
+  font-style: italic;
+  margin-top: 24px;
+  letter-spacing: 1px
+}
+
+.page-title-section {
+  background-color: #1e1e1e;
   padding: 64px 32px;
   text-align: center;
 }
 
+.playable-section-instructions {
+  color: #a0a0a0;
+  font-style: italic;
+  margin: 6px 0;
+}
 .playable-section-title {
   font-family: 'Helvetica';
   font-size: 18px;
