@@ -1,5 +1,5 @@
 /**
- * Controls the canvas playable-1.
+ * Controls the canvas canvas-1.
  *
  * The intent of this canvas is to just show stats. For each state, how many
  * deaths were there by firearms for a given year. Of those, what percentage
@@ -14,7 +14,7 @@
  *
  */
 var playable1;
-var playable1Canvas = document.getElementById('playable-1');
+var playable1Canvas = document.getElementById('canvas-1');
 
 playable1 = (function() {
 
@@ -32,7 +32,7 @@ playable1 = (function() {
   var drawNumsTotalAnimTime = 500;
   var drawNumsAnimInterval = 50;
   var drawNumsAnimTime = 0;
-  var drawNumsIntervalId;
+  var drawNumsIntervalId = 0;
 
   // Colors
   var blueColor = '#387567';
@@ -178,7 +178,11 @@ playable1 = (function() {
       ctx.textAlign = 'left';
       ctx.fillText(STATE_DATA[selected].name, 24, 346);
 
-      // Animation time for this text is dictated by the total_normalized number
+      // Clear any existing draw interval and start a new one
+      if (drawNumsIntervalId > 0) {
+        window.clearInterval(drawNumsIntervalId);
+      }
+
       drawNumsAnimTime = 0;
       drawNumsIntervalId = window.setInterval(drawStateNumbers.bind({state: selected}), drawNumsAnimInterval);
     }
@@ -290,6 +294,7 @@ playable1 = (function() {
 
       // Done animating
       window.clearInterval(drawNumsIntervalId);
+      drawNumsIntervalId = 0;
     }
     else {
       drawNumsAnimTime += drawNumsAnimInterval;

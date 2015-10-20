@@ -22,9 +22,26 @@ canvas {
   /*border: 1px solid black;*/
 }
 
+footer {
+  border-top: 1px solid #a0a0a0;
+  font-family: 'forolight';
+  margin: 24px 0;
+  padding: 24px 0;
+  text-align: center;
+}
+
+footer a {
+  color: black;
+  text-decoration: none;
+}
+
 .content {
   margin: 64px auto;
   width: 648px;
+}
+
+.home-link {
+  line-height: 42px;
 }
 
 .page-title {
@@ -72,4 +89,9 @@ canvas {
   font-weight: 600;
   letter-spacing: 4px;
   padding: 16px 0;
+}
+
+.share-links img {
+  height: 42px;
+  width: 42px;
 }
