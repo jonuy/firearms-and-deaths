@@ -40,8 +40,25 @@ playable2 = (function() {
   var mouseX;
   var mouseY;
 
+  // Current slider variable values
+  var vWithLock = 0;
+  var vLockEffect = 68;
+
+  // Boolean. True if dragging one of the sliders.
+  var isDraggingSlider1 = false;
+  var isDraggingSlider2 = false;
+
   // Event queue
   var eventQueue = [];
+
+  /**
+   * Utility console log that only prints when debug is on.
+   */
+  function debugLog(msg) {
+    if (GLOBAL_SHOW_DEBUG) {
+      console.log(msg);
+    }
+  }
 
   /**
    * Setup initial view of the canvas
@@ -54,6 +71,8 @@ playable2 = (function() {
 
     canvas.addEventListener('click', onClick);
     canvas.addEventListener('mousemove', onMouseMove);
+    canvas.addEventListener('mousedown', onMouseDown);
+    canvas.addEventListener('mouseup', onMouseUp);
 
     debugDrawGrid();
 
@@ -61,19 +80,37 @@ playable2 = (function() {
   }
 
   /**
-   * @todo Comment me
+   * click event listener
    */
   function onClick(event) {
     eventQueue.push(event);
+    debugLog('click');
   }
 
   /**
-   * @todo Comment me
+   * mousemove event listener
    */
   function onMouseMove(event) {
     mouseX = event.layerX;
     mouseY = event.layerY;
   }
+
+  /**
+   * mousedown event listener
+   */
+  function onMouseDown(event) {
+    eventQueue.push(event);
+    debugLog('mousedown');
+  }
+
+  /**
+   * mouseup event listener
+   */
+  function onMouseUp(event) {
+    eventQueue.push(event);
+    debugLog('mouseup');
+  }
+
   /**
    * For debug. Draw grid.
    */
@@ -225,6 +262,7 @@ playable2 = (function() {
    * Draw variable sliders.
    */
   function drawSliders() {
+    var i;
     var lineSize = 3;
     var lineWidth = 156;
     var lineEdgeHeight = 24;
@@ -266,17 +304,83 @@ playable2 = (function() {
     ctx.fillStyle = '#cccccc'; // @todo pick better color
     ctx.textBaseline = 'bottom';
 
-    // for Slider 1
-    var s1Val = 0;
-    var s1Pos = xSlider1 + (lineWidth * (s1Val / 100) - (sliderWidth / 2));
-    ctx.fillRect(s1Pos, yTop, sliderWidth, sliderHeight);
-    ctx.fillText(s1Val + '%', s1Pos + (sliderWidth / 2), yTop - 4);
+    // Slider positions
+    function calcSliderPos(xSliderPos, val) {
+      return xSliderPos + (lineWidth * (val / 100) - (sliderWidth / 2));
+    }
 
-    // for Slider 2
-    var s2Val = 68;
-    var s2Pos = xSlider2 + (lineWidth * (s2Val / 100) - (sliderWidth / 2));
+    var s1Pos = calcSliderPos(xSlider1, vWithLock);
+    var s2Pos = calcSliderPos(xSlider2, vLockEffect);
+
+    function isCursorOnSlider(sliderPos, x, y) {
+      return x >= sliderPos && x <= sliderPos + sliderWidth &&
+          y >= yTop && y <= yTop + sliderHeight;
+    }
+
+    // Did it click one of the sliders?
+    i = eventQueue.length;
+    while (i--) {
+      // If we're dragging a slider, we're looking for a mouseup event
+      if (isDraggingSlider1 || isDraggingSlider2) {
+        if (eventQueue[i].type == 'mouseup') {
+          isDraggingSlider1 = false;
+          isDraggingSlider2 = false;
+          eventQueue.splice(i, 1);
+        }
+      }
+      // Otherwise we'll look for a click
+      else if (eventQueue[i].type == 'mousedown') {
+        // Is the click on a slider 1
+        if (isCursorOnSlider(s1Pos, eventQueue[i].layerX, eventQueue[i].layerY)) {
+          isDraggingSlider1 = true;
+          eventQueue.splice(i, 1);
+        }
+        else if (isCursorOnSlider(s2Pos, eventQueue[i].layerX, eventQueue[i].layerY)) {
+          isDraggingSlider2 = true;
+          eventQueue.splice(i, 1);
+        }
+      }
+    }
+
+    // Change style of cursor if hovering over slider
+    if (isDraggingSlider1 || isDraggingSlider2 ||
+        isCursorOnSlider(s1Pos, mouseX, mouseY) ||
+        isCursorOnSlider(s2Pos, mouseX, mouseY)) {
+      canvas.style.cursor = 'ew-resize';
+    }
+    else {
+      canvas.style.cursor = 'default';
+    }
+
+    // If we're currently dragging, update the positions of the slider
+    if (isDraggingSlider1) {
+      vWithLock = Math.round(((mouseX - xSlider1) / lineWidth) * 100);
+      if (vWithLock < 0) {
+        vWithLock = 0;
+      }
+      else if (vWithLock > 100) {
+        vWithLock = 100;
+      }
+      s1Pos = calcSliderPos(xSlider1, vWithLock);
+    }
+    else if (isDraggingSlider2) {
+      vLockEffect = Math.round(((mouseX - xSlider2) / lineWidth) * 100);
+      if (vLockEffect < 0) {
+        vLockEffect = 0;
+      }
+      else if (vLockEffect > 100) {
+        vLockEffect = 100;
+      }
+      s2Pos = calcSliderPos(xSlider2, vLockEffect);
+    }
+
+    // draw Slider 1
+    ctx.fillRect(s1Pos, yTop, sliderWidth, sliderHeight);
+    ctx.fillText(vWithLock + '%', s1Pos + (sliderWidth / 2), yTop - 4);
+
+    // draw Slider 2
     ctx.fillRect(s2Pos, yTop, sliderWidth, sliderHeight);
-    ctx.fillText(s2Val + '%', s2Pos + (sliderWidth / 2), yTop - 4);
+    ctx.fillText(vLockEffect + '%', s2Pos + (sliderWidth / 2), yTop - 4);
   }
 
   return {
