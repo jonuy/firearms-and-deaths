@@ -10,7 +10,7 @@
  * the most firearm deaths overall, that'll have 100 shown. And if VA has only
  * 10% of that, then only show 10 there.
  *
- * Canvas size: 648 x 360 (TBD)
+ * Canvas size: 648 x 440 (TBD)
  *
  */
 var playable1;
@@ -366,18 +366,7 @@ playable1 = (function() {
     }
     // Stop drawing once we hit the total
     else {
-      // For cases where the estimations end up making it look like suicides and
-      // accidental deaths account for 100% of deaths, throw in another 'other'
-      // person to clarify that it's not actually 100%.
-      /* ... ehhh actualy maybe don't do this. we'll be showing the totals anyway
-      numSuicideAccident = STATE_DATA[this.state].suicide_normalized + STATE_DATA[this.state].accident_normalized;
-      if (STATE_DATA[this.state].total_normalized == numSuicideAccident) {
-        haltDrawing = currPerson > STATE_DATA[this.state].total_normalized;
-      }
-      else {
-      */
-        haltDrawing = currPerson >= STATE_DATA[this.state].total_normalized
-      //}
+      haltDrawing = currPerson >= STATE_DATA[this.state].total_normalized
     }
 
 
@@ -487,16 +476,3 @@ playable1 = (function() {
 })();
 
 playable1.init();
-
-/**
- * Only start playable1 once it comes into view.
- */
-window.onscroll = function() {
-  var buffer = 150;
-  var screenBottom = window.scrollY + window.innerHeight;
-  var canvasTop = playable1Canvas.offsetTop + buffer;
-
-  if (!playable1.hasStarted && screenBottom > canvasTop) {
-    playable1.run();
-  }
-}
