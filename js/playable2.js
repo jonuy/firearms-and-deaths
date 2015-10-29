@@ -133,6 +133,7 @@ playable2 = (function() {
     // Draw positions
     ctx.font = '12px Helvetica';
     ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
     ctx.fillText('x: ' + mouseX, CANVAS_WIDTH - 40, 12);
     ctx.fillText('y: ' + mouseY, CANVAS_WIDTH - 40, 24);
   }
@@ -149,6 +150,7 @@ playable2 = (function() {
     }
 
     drawStartButton();
+    drawSliders();
 
     // If nothing's consumed an event in the queue, then clear it all.
     // um... is this the right thing to do? Could we run into some weird
@@ -217,6 +219,64 @@ playable2 = (function() {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(text, CANVAS_WIDTH / 2, boxMargin + (boxHeight / 2));
+  }
+
+  /**
+   * Draw variable sliders.
+   */
+  function drawSliders() {
+    var lineSize = 3;
+    var lineWidth = 156;
+    var lineEdgeHeight = 24;
+    var yTop = 84;
+    var leftMargin;
+    var xSlider1;
+    var xSlider2;
+    var xSliderGap = 72;
+    var sliderWidth = 12;
+    var sliderHeight = 24;
+
+    ctx.fillStyle = '#000'; // @todo pick better color
+    ctx.font = '14px Helvetica';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // Slider 1 - % of people with gun locks
+    leftMargin = (CANVAS_WIDTH - (lineWidth * 2) - xSliderGap) / 2;
+    xSlider1 = leftMargin;
+    // horizontal line
+    ctx.fillRect(xSlider1, yTop + 12 - 1, lineWidth, lineSize);
+    // vertical lines
+    ctx.fillRect(xSlider1, yTop, lineSize, lineEdgeHeight);
+    ctx.fillRect(xSlider1 + lineWidth, yTop, lineSize, lineEdgeHeight);
+    // text label
+    ctx.fillText('% of people with gun locks', xSlider1 + (lineWidth / 2), yTop + lineEdgeHeight + 12);
+
+    // Slider 2 - % effectiveness of gun locks
+    xSlider2 = leftMargin + lineWidth + xSliderGap;
+    // horizontal line
+    ctx.fillRect(xSlider2, yTop + 12 - 1, lineWidth, lineSize);
+    // vertical lines
+    ctx.fillRect(xSlider2, yTop, lineSize, lineEdgeHeight);
+    ctx.fillRect(xSlider2 + lineWidth, yTop, lineSize, lineEdgeHeight);
+    // text label
+    ctx.fillText('% effectiveness of gun locks', xSlider2 + (lineWidth / 2), yTop + lineEdgeHeight + 12);
+
+    // Draw the movable parts
+    ctx.fillStyle = '#cccccc'; // @todo pick better color
+    ctx.textBaseline = 'bottom';
+
+    // for Slider 1
+    var s1Val = 0;
+    var s1Pos = xSlider1 + (lineWidth * (s1Val / 100) - (sliderWidth / 2));
+    ctx.fillRect(s1Pos, yTop, sliderWidth, sliderHeight);
+    ctx.fillText(s1Val + '%', s1Pos + (sliderWidth / 2), yTop - 4);
+
+    // for Slider 2
+    var s2Val = 68;
+    var s2Pos = xSlider2 + (lineWidth * (s2Val / 100) - (sliderWidth / 2));
+    ctx.fillRect(s2Pos, yTop, sliderWidth, sliderHeight);
+    ctx.fillText(s2Val + '%', s2Pos + (sliderWidth / 2), yTop - 4);
   }
 
   return {
