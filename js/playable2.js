@@ -17,11 +17,13 @@ playable2 = (function() {
 
   // Colors
   var COLOR_BOUNDARIES = '#000000';
-  var COLOR_GUN_LOCK = '#92bfb4'; // @todo may want to revisit this color
-  var COLOR_ATTEMPT = '#ec9e56'; // @todo may want to revist this color
-  var COLOR_SAVED = '#00ff00'; // @todo change me
-  var COLOR_UNSUCCESSFUL = '#ffff00'; // @todo change me
-  var COLOR_FATAL = '#ff0000'; // @todo change me
+  var COLOR_PERSONS_DEFAULT = '#20353c';
+  var COLOR_PERSONS_W_LOCK = '#2c2863';
+  var COLOR_GUN_LOCK = '#07a1c5';
+  var COLOR_ATTEMPT = '#ef5f48';
+  var COLOR_SAVED = '#88ca41';
+  var COLOR_UNSUCCESSFUL = '#faa821';
+  var COLOR_FATAL = '#3a0031';
   var COLOR_CROSSHAIRS = '#cc3333';
   var COLOR_GRID = '#cccccc';
   var COLOR_BUTTON_HOVER = '#cccccc';
@@ -281,7 +283,7 @@ playable2 = (function() {
     var sliderWidth = 12;
     var sliderHeight = 24;
 
-    ctx.fillStyle = '#000'; // @todo pick better color
+    ctx.fillStyle = '#000';
     ctx.font = '14px Helvetica';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -379,7 +381,7 @@ playable2 = (function() {
 
     ctx.textBaseline = 'bottom';
     // draw Slider 1
-    ctx.fillStyle = '#cccccc'; // @todo pick better color
+    ctx.fillStyle = COLOR_PERSONS_W_LOCK;
     ctx.fillRect(s1Pos, yTop, sliderWidth, sliderHeight);
     ctx.fillText(vWithLock + '%', s1Pos + (sliderWidth / 2), yTop - 4);
 
@@ -423,7 +425,7 @@ playable2 = (function() {
     var area2Width = 132;
     var area2Height = 72;
     var area2X = area1X + area1Radius + marginBwSections;
-    var area2Y = 196;
+    var area2Y = 208;
     // Boundary box
     ctx.strokeStyle = COLOR_BOUNDARIES;
     ctx.strokeRect(area2X, area2Y, area2Width, area2Height);
@@ -449,7 +451,7 @@ playable2 = (function() {
     var area3Width = 132;
     var area3Height = 72;
     var area3X = area2X;
-    var area3Y = 344;
+    var area3Y = 332;
     // Boundary box
     ctx.strokeStyle = COLOR_BOUNDARIES;
     ctx.strokeRect(area3X, area3Y, area3Width, area3Height);
@@ -472,7 +474,7 @@ playable2 = (function() {
     var area4Width = 156;
     var area4Height = 70;
     var area4X = area2X + area2Width + marginBwSections;
-    var area4Y = area2Y;
+    var area4Y = 196;
     // Boundary box
     ctx.strokeStyle = COLOR_BOUNDARIES;
     ctx.strokeRect(area4X, area4Y, area4Width, area4Height);
@@ -489,10 +491,11 @@ playable2 = (function() {
     // Label
     ctx.fillStyle = COLOR_SAVED;
     ctx.textAlign = 'center';
-    ctx.font = '14px Helvetica';
+    ctx.font = '16px Helvetica';
     ctx.textBaseline = 'bottom';
     ctx.fillText('XX %', area4X + area4Width + 52, area4Y + (area4Height / 2));
 
+    ctx.font = '14px Helvetica';
     ctx.fillStyle = '#000';
     ctx.textBaseline = 'top';
     ctx.fillText('Saved', area4X + area4Width + 52, area4Y + (area4Height / 2));
@@ -518,13 +521,15 @@ playable2 = (function() {
     // Label
     ctx.fillStyle = COLOR_UNSUCCESSFUL;
     ctx.textAlign = 'center';
-    ctx.font = '14px Helvetica';
+    ctx.font = '16px Helvetica';
     ctx.textBaseline = 'bottom';
     ctx.fillText('YY %', area5X + area5Width + 52, area5Y + (area5Height / 2));
 
+    ctx.font = '14px Helvetica';
     ctx.fillStyle = '#000';
     ctx.textBaseline = 'top';
     ctx.fillText('Unsuccessful', area5X + area5Width + 52, area5Y + (area5Height / 2));
+    ctx.fillText('attempt', area5X + area5Width + 52, area5Y + (area5Height / 2) + 14);
 
     // Area 6 - Fatal
     var area6Width = 156;
@@ -547,13 +552,15 @@ playable2 = (function() {
     // Label
     ctx.fillStyle = COLOR_FATAL;
     ctx.textAlign = 'center';
-    ctx.font = '14px Helvetica';
+    ctx.font = '16px Helvetica';
     ctx.textBaseline = 'bottom';
     ctx.fillText('ZZ %', area6X + area6Width + 52, area6Y + (area6Height / 2));
 
+    ctx.font = '14px Helvetica';
     ctx.fillStyle = '#000';
     ctx.textBaseline = 'top';
     ctx.fillText('Fatal', area6X + area6Width + 52, area6Y + (area6Height / 2));
+    ctx.fillText('attempt', area6X + area6Width + 52, area6Y + (area6Height / 2) + 14);
   }
 
   return {
