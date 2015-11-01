@@ -41,9 +41,6 @@ playable2 = (function() {
   // Boolean. True if we should draw debug stuff.
   var showDebug = false;
 
-  // Boolean. True if the simulation is running.
-  var isRunning = false;
-
   // Current mouse pointer positions
   var mouseX;
   var mouseY;
@@ -55,6 +52,9 @@ playable2 = (function() {
   // Boolean. True if dragging one of the sliders.
   var isDraggingSlider1 = false;
   var isDraggingSlider2 = false;
+
+  // Simulation system
+  var simSystem;
 
   // Event queue
   var eventQueue = [];
@@ -76,6 +76,8 @@ playable2 = (function() {
 
     canvas = canvas2;
     ctx = canvas.getContext('2d');
+
+    simSystem = new SimSystem();
 
     canvas.addEventListener('click', onClick);
     canvas.addEventListener('mousemove', onMouseMove);
@@ -183,9 +185,9 @@ playable2 = (function() {
     ctx.fillText('y: ' + mouseY, CANVAS_WIDTH - 40, 24);
   }
 
-  /**
-   * Main draw loop
-   */
+  /******************
+   * Main draw loop *
+   ******************/
   function draw() {
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
@@ -197,6 +199,10 @@ playable2 = (function() {
     drawStartButton();
     drawSliders();
     drawSectionBounds();
+
+    if (simSystem && simSystem.isRunning()) {
+      simSystem.run();
+    }
 
     // If nothing's consumed an event in the queue, then clear it all.
     // um... is this the right thing to do? Could we run into some weird
@@ -212,6 +218,7 @@ playable2 = (function() {
    */
   function drawStartButton() {
     var i;
+    var isRunning;
     var text;
     var isClicked = false;;
     var boxWidth = 200;
@@ -237,12 +244,17 @@ playable2 = (function() {
       }
     }
 
-    // If there was a click, switch the isRunning flag
+    // If there was a click, switch the system on or off
     if (isClicked) {
-      isRunning = !isRunning;
+      if (simSystem.isRunning()) {
+        simSystem.stop();
+      }
+      else {
+        simSystem.start();
+      }
     }
 
-    if (isRunning) {
+    if (simSystem.isRunning()) {
       ctx.fillStyle = COLOR_BUTTON_ON;
       text = 'STOP SIMULATION';
     }
@@ -401,7 +413,7 @@ playable2 = (function() {
     var leftMargin = 12;
     var marginBwSections = 36;
     var area1Radius = 90;
-    var area1X = leftMargin + area1Radius;
+    var area1X = 102; // basically, leftMargin + area1Radius
     var area1Y = 310;
 
     ctx.fillStyle = COLOR_BOUNDARIES;
@@ -561,6 +573,195 @@ playable2 = (function() {
     ctx.textBaseline = 'top';
     ctx.fillText('Fatal', area6X + area6Width + 52, area6Y + (area6Height / 2));
     ctx.fillText('attempt', area6X + area6Width + 52, area6Y + (area6Height / 2) + 14);
+  }
+
+  /**
+   * Manages the simulated people going through the simulation.
+   */
+  function SimSystem() {
+    var MAX_SIZE = 50;
+
+    // Arrays of persons in diff states
+    var pending = [];
+    var active = [];
+    var done = [];
+
+    // System is currently running
+    this.running = false;
+
+    // Define the spawn area
+    var spawnArea = {x: 102, y: 310, r: 90};
+
+    // Timing things
+    var SPAWN_INTERVAL = 200;
+    var lastTimeUpdated = 0;
+    var deltaTime = 0;
+    var timeUntilNextSpawn = 0;
+
+    function start() {
+      var i;
+
+      // Reset any persons still on the canvas
+      pending = [];
+      active = [];
+      done = [];
+
+      for (i = 0; i < MAX_SIZE; i++) {
+        pending[pending.length] = new Person();
+      }
+
+      lastTimeUpdated = (new Date()).getTime();
+      timeUntilNextSpawn
+
+      this.running = true;
+
+      debugLog('SimSystem.start at: ' + lastTimeUpdated);
+    }
+
+    function run() {
+      var currSpawn;
+      var currSpawnPos;
+      var i;
+      var time;
+
+      time = (new Date()).getTime();
+      deltaTime = time - lastTimeUpdated;
+      lastTimeUpdated = time;
+
+      // If anyone's in pending, these persons should spawn every .2 seconds
+      timeUntilNextSpawn -= deltaTime;
+      if (pending.length > 0 && timeUntilNextSpawn <= 0) {
+        // Spawn and add to the active array
+        currSpawn = pending.pop();
+        active.push(currSpawn);
+        timeUntilNextSpawn = SPAWN_INTERVAL;
+
+        // Choose random spawn position
+        currSpawnPos = _randomSpawnPosition(spawnArea.x, spawnArea.y, spawnArea.r - 10);
+
+        currSpawn.spawn(currSpawnPos.x, currSpawnPos.y);
+      }
+
+      // Draw any in active
+      for (i = 0; i < active.length; i++) {
+        active[i].run(deltaTime);
+      }
+    }
+
+    function stop() {
+      debugLog('TODO: SimSystem.stop()');
+
+      this.running = false;
+    }
+
+    /**
+     * Utility function to choose a random spawn position
+     *
+     * @param x Spawn area center x
+     * @param y Spawn area center y
+     * @param r Spawn area radius
+     *
+     * @return Object {int x, int y}
+     */
+    function _randomSpawnPosition(x, y, r) {
+      // Choose a random angle in radians
+      var theta = Math.random() * Math.PI * 2;
+
+      // Choose random position along the r
+      var tmpR = Math.floor(Math.random() * r);
+
+      var x1 = Math.floor(tmpR * Math.cos(theta));
+      var y1 = Math.floor(tmpR * Math.sin(theta));
+
+      return {
+        x: x + x1,
+        y: y + y1
+      };
+    }
+
+    return {
+      isRunning: function() {return this.running;},
+      init: init,
+      run: run,
+      start: start,
+      stop: stop
+    };
+  }
+
+  /**
+   * All things Person position, drawing and state related.
+   */
+  function Person() {
+    // possible states? inactive, active, moving, start, gunlock, attempt, saved, unsuccessful, fatal, done
+    var States = {
+      SPAWNING: 0,
+      ACTIVE: 1, // no idea
+    };
+
+    var size = 8;
+    var spawnDuration = 250;
+    var spawnTimer;
+
+    var state;
+
+    var position;
+    var startPos;
+
+    function drawSpawn(deltaTime) {
+      var currSize;
+
+      // Scale size based on how much time is left
+      spawnTimer += deltaTime;
+      currSize = Math.floor((spawnTimer / spawnDuration) * size);
+      _drawPerson(position.x, position.y, currSize, COLOR_PERSONS_DEFAULT);
+
+      // Done spawning, move onto the next state
+      if (spawnTimer > spawnDuration) {
+        state = States.ACTIVE;
+      }
+    }
+
+    function drawActive(deltaTime) {
+      _drawPerson(position.x, position.y, size, COLOR_GUN_LOCK);
+    }
+
+    function reset() {}
+
+    function run(deltaTime) {
+      if (state == States.SPAWNING) {
+        drawSpawn(deltaTime);
+      }
+      else if (state == States.ACTIVE) {
+        drawActive(deltaTime);
+      }
+    }
+
+    function spawn(x, y) {
+      debugLog('spawn: ' + x + ', ' + y);
+      startPos = {x: x, y: y};
+      position = {x: x, y: y};
+      state = States.SPAWNING;
+      spawnTimer = 0;
+    }
+
+    function _drawPerson(x, y, currSize, color) {
+      ctx.beginPath();
+      ctx.arc(position.x, position.y, currSize, 0, 2 * Math.PI, false);
+      ctx.fillStyle = color;
+      ctx.fill();
+
+      // Any scenario where we'd want to just draw the outline instead?
+      // context.lineWidth = 2;
+      // context.strokeStyle = '#00f';
+      // context.stroke();
+    }
+
+    return {
+      draw: draw,
+      reset: reset,
+      run: run,
+      spawn: spawn
+    };
   }
 
   return {
