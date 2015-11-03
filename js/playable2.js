@@ -695,14 +695,16 @@ playable2 = (function() {
     // possible states? inactive, active, moving, start, gunlock, attempt, saved, unsuccessful, fatal, done
     var States = {
       SPAWNING: 0,
-      ACTIVE: 1, // no idea
+      SPAWN_TRANSITION: 1,
+      ACTIVE: 2, // no idea
     };
 
     var size = 8;
     var spawnDuration = 250;
-    var spawnTimer;
+    var spawnTransitionDuration = 1000;
 
     var state;
+    var timeUntilNextState;
 
     var position;
     var startPos;
@@ -711,29 +713,42 @@ playable2 = (function() {
       var currSize;
 
       // Scale size based on how much time is left
-      spawnTimer += deltaTime;
-      currSize = Math.floor((spawnTimer / spawnDuration) * size);
+      currSize = Math.floor(((spawnDuration - timeUntilNextState) / spawnDuration) * size);
       _drawPerson(position.x, position.y, currSize, COLOR_PERSONS_DEFAULT);
-
-      // Done spawning, move onto the next state
-      if (spawnTimer > spawnDuration) {
-        state = States.ACTIVE;
-      }
     }
 
-    function drawActive(deltaTime) {
+    function drawSpawnTransition() {
+      _drawPerson(position.x, position.y, size, COLOR_CROSSHAIRS);
+    }
+
+    function drawActive() {
       _drawPerson(position.x, position.y, size, COLOR_GUN_LOCK);
     }
 
     function reset() {}
 
     function run(deltaTime) {
+      timeUntilNextState -= deltaTime;
+
       if (state == States.SPAWNING) {
         drawSpawn(deltaTime);
+
+        if (timeUntilNextState < 0) {
+          state = States.SPAWN_TRANSITION;
+          timeUntilNextState = spawnTransitionDuration;
+        }
+      }
+      else if (state == States.SPAWN_TRANSITION) {
+        drawSpawnTransition();
+
+        if (timeUntilNextState < 0) {
+          state = States.ACTIVE;
+        }
       }
       else if (state == States.ACTIVE) {
-        drawActive(deltaTime);
+        drawActive();
       }
+
     }
 
     function spawn(x, y) {
@@ -741,7 +756,7 @@ playable2 = (function() {
       startPos = {x: x, y: y};
       position = {x: x, y: y};
       state = States.SPAWNING;
-      spawnTimer = 0;
+      timeUntilNextState = spawnDuration;
     }
 
     function _drawPerson(x, y, currSize, color) {
