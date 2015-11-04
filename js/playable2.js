@@ -696,33 +696,50 @@ playable2 = (function() {
     var States = {
       SPAWNING: 0,
       SPAWN_TRANSITION: 1,
-      ACTIVE: 2, // no idea
+      MOVE_TO_GUN_LOCK: 2,
+      MOVE_TO_ATTEMPT: 3,
+      ACTIVE: 4, // no idea
     };
 
     var size = 8;
     var spawnDuration = 250;
+    var moveDuration = 500;
     var spawnTransitionDuration = 1000;
 
     var state;
     var timeUntilNextState;
 
     var position;
-    var startPos;
+    var moveFromPosition;
+    var moveToPosition;
+    var hasGunLock;
 
     function drawSpawn(deltaTime) {
       var currSize;
+      var color = hasGunLock ? COLOR_GUN_LOCK : COLOR_PERSONS_DEFAULT;
 
       // Scale size based on how much time is left
       currSize = Math.floor(((spawnDuration - timeUntilNextState) / spawnDuration) * size);
-      _drawPerson(position.x, position.y, currSize, COLOR_PERSONS_DEFAULT);
+      _drawPerson(position.x, position.y, currSize, color);
     }
 
     function drawSpawnTransition() {
-      _drawPerson(position.x, position.y, size, COLOR_CROSSHAIRS);
+      var color = hasGunLock ? COLOR_GUN_LOCK : COLOR_PERSONS_DEFAULT;
+
+      _drawPerson(position.x, position.y, size, color);
     }
 
     function drawActive() {
-      _drawPerson(position.x, position.y, size, COLOR_GUN_LOCK);
+      var color = hasGunLock ? COLOR_GUN_LOCK : COLOR_PERSONS_DEFAULT;
+      _drawPerson(position.x, position.y, size, color);
+    }
+
+    function drawMove() {
+      var pctMove = (moveDuration - timeUntilNextState) / moveDuration;
+      position.x = moveFromPosition.x + ((moveToPosition.x - moveFromPosition.x) * pctMove);
+      position.y = moveFromPosition.y + ((moveToPosition.y - moveFromPosition.y) * pctMove);
+
+      drawActive();
     }
 
     function reset() {}
@@ -742,6 +759,28 @@ playable2 = (function() {
         drawSpawnTransition();
 
         if (timeUntilNextState < 0) {
+          if (hasGunLock) {
+            state = States.MOVE_TO_GUN_LOCK;
+          }
+          else {
+            state = States.MOVE_TO_ATTEMPT;
+          }
+
+          timeUntilNextState = moveDuration
+          _prepMove(state);
+        }
+      }
+      else if (state == States.MOVE_TO_GUN_LOCK) {
+        drawMove();
+
+        if (timeUntilNextState < 0) {
+          state = States.ACTIVE;
+        }
+      }
+      else if (state == States.MOVE_TO_ATTEMPT) {
+        drawMove();
+
+        if (timeUntilNextState < 0) {
           state = States.ACTIVE;
         }
       }
@@ -753,10 +792,16 @@ playable2 = (function() {
 
     function spawn(x, y) {
       debugLog('spawn: ' + x + ', ' + y);
-      startPos = {x: x, y: y};
       position = {x: x, y: y};
       state = States.SPAWNING;
       timeUntilNextState = spawnDuration;
+
+      if (Math.random() > vWithLock / 100) {
+        hasGunLock = false;
+      }
+      else {
+        hasGunLock = true;
+      }
     }
 
     function _drawPerson(x, y, currSize, color) {
@@ -769,6 +814,35 @@ playable2 = (function() {
       // context.lineWidth = 2;
       // context.strokeStyle = '#00f';
       // context.stroke();
+    }
+
+    function _prepMove(nextState) {
+      var x;
+      var y;
+      var width;
+      var height;
+      var margin = 10;
+
+      if (nextState == States.MOVE_TO_GUN_LOCK) {
+        x = 228;
+        y = 208;
+        width = 132;
+        height = 72;
+      }
+      else if (nextState == States.MOVE_TO_ATTEMPT) {
+        x = 228;
+        y = 332
+        width = 132;
+        height = 72
+      }
+
+      moveFromPosition = {};
+      moveFromPosition.x = position.x;
+      moveFromPosition.y = position.y;
+
+      moveToPosition = {};
+      moveToPosition.x = x + margin + Math.floor(Math.random() * (width - margin * 2));
+      moveToPosition.y = y + margin + Math.floor(Math.random() * (height - margin * 2));
     }
 
     return {
