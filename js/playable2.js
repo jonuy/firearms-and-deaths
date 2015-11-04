@@ -30,6 +30,8 @@ playable2 = (function() {
   var COLOR_BUTTON_OFF = '#333333';
   var COLOR_BUTTON_ON = '#777777';
   var COLOR_BUTTON_TEXT = '#ffffff';
+  var COLOR_SIM = '#ff0000';
+
 
   // Canvas and context
   var canvas;
@@ -55,6 +57,11 @@ playable2 = (function() {
 
   // Simulation system
   var simSystem;
+
+  // Results from the simulation
+  var vSimSaved = 0;
+  var vSimUnsuccessful = 0;
+  var vSimFatal = 0;
 
   // Event queue
   var eventQueue = [];
@@ -505,7 +512,7 @@ playable2 = (function() {
     ctx.textAlign = 'center';
     ctx.font = '16px Helvetica';
     ctx.textBaseline = 'bottom';
-    ctx.fillText('XX %', area4X + area4Width + 52, area4Y + (area4Height / 2));
+    ctx.fillText(vSimSaved + ' %', area4X + area4Width + 52, area4Y + (area4Height / 2));
 
     ctx.font = '14px Helvetica';
     ctx.fillStyle = '#000';
@@ -535,7 +542,7 @@ playable2 = (function() {
     ctx.textAlign = 'center';
     ctx.font = '16px Helvetica';
     ctx.textBaseline = 'bottom';
-    ctx.fillText('YY %', area5X + area5Width + 52, area5Y + (area5Height / 2));
+    ctx.fillText(vSimUnsuccessful + ' %', area5X + area5Width + 52, area5Y + (area5Height / 2));
 
     ctx.font = '14px Helvetica';
     ctx.fillStyle = '#000';
@@ -566,7 +573,7 @@ playable2 = (function() {
     ctx.textAlign = 'center';
     ctx.font = '16px Helvetica';
     ctx.textBaseline = 'bottom';
-    ctx.fillText('ZZ %', area6X + area6Width + 52, area6Y + (area6Height / 2));
+    ctx.fillText(vSimFatal +' %', area6X + area6Width + 52, area6Y + (area6Height / 2));
 
     ctx.font = '14px Helvetica';
     ctx.fillStyle = '#000';
@@ -619,10 +626,13 @@ playable2 = (function() {
     }
 
     function run() {
-      var currSpawn;
-      var currSpawnPos;
+      var tmp;
+      var spawnPos;
       var i;
       var time;
+      var countSave = 0;
+      var countUnsuccessful = 0;
+      var countFatal = 0;
 
       time = (new Date()).getTime();
       deltaTime = time - lastTimeUpdated;
@@ -632,19 +642,44 @@ playable2 = (function() {
       timeUntilNextSpawn -= deltaTime;
       if (pending.length > 0 && timeUntilNextSpawn <= 0) {
         // Spawn and add to the active array
-        currSpawn = pending.pop();
-        active.push(currSpawn);
+        tmp = pending.pop();
+        active.push(tmp);
         timeUntilNextSpawn = SPAWN_INTERVAL;
 
         // Choose random spawn position
-        currSpawnPos = _randomSpawnPosition(spawnArea.x, spawnArea.y, spawnArea.r - 10);
+        spawnPos = _randomSpawnPosition(spawnArea.x, spawnArea.y, spawnArea.r - 10);
 
-        currSpawn.spawn(currSpawnPos.x, currSpawnPos.y);
+        tmp.spawn(spawnPos.x, spawnPos.y);
       }
+
+      // Draw any in done
+      for (i = 0; i < done.length; i++) {
+        done[i].run(deltaTime);
+
+        if (done[i].isSaved()) {
+          countSave++;
+        }
+        else if (done[i].isUnsuccessful()) {
+          countUnsuccessful++;
+        }
+        else if (done[i].isFatal()) {
+          countFatal++;
+        }
+      }
+
+      // Update sim counts
+      vSimSaved = Math.floor((countSave / MAX_SIZE) * 100);
+      vSimUnsuccessful = Math.floor((countUnsuccessful / MAX_SIZE) * 100);
+      vSimFatal = Math.floor((countFatal / MAX_SIZE) * 100);
 
       // Draw any in active
       for (i = 0; i < active.length; i++) {
         active[i].run(deltaTime);
+
+        if (active[i].isDone()) {
+          tmp = active.pop();
+          done.push(tmp);
+        }
       }
     }
 
@@ -698,13 +733,22 @@ playable2 = (function() {
       SPAWN_TRANSITION: 1,
       MOVE_TO_GUN_LOCK: 2,
       MOVE_TO_ATTEMPT: 3,
-      ACTIVE: 4, // no idea
+      TRY_LOCK: 4,
+      TRY_ATTEMPT: 5,
+      MOVE_TO_UNSUCCESSFUL: 6,
+      MOVE_TO_FATAL: 7,
+      MOVE_TO_SAVED: 8,
+      DONE_UNSUCCESSFUL: 9,
+      DONE_FATAL: 10,
+      DONE_SAVED: 11,
     };
 
     var size = 8;
     var spawnDuration = 250;
     var moveDuration = 500;
+    var simDuration = 1500;
     var spawnTransitionDuration = 1000;
+    var attemptRate = 85;
 
     var state;
     var timeUntilNextState;
@@ -713,6 +757,7 @@ playable2 = (function() {
     var moveFromPosition;
     var moveToPosition;
     var hasGunLock;
+    var simValue;
 
     function drawSpawn(deltaTime) {
       var currSize;
@@ -729,17 +774,35 @@ playable2 = (function() {
       _drawPerson(position.x, position.y, size, color);
     }
 
-    function drawActive() {
-      var color = hasGunLock ? COLOR_GUN_LOCK : COLOR_PERSONS_DEFAULT;
+    function drawActive(colorOverride) {
+      var color;
+
+      if (typeof colorOverride === 'undefined') {
+        color = hasGunLock ? COLOR_GUN_LOCK : COLOR_PERSONS_DEFAULT;
+      }
+      else {
+        color = colorOverride;
+      }
+
       _drawPerson(position.x, position.y, size, color);
     }
 
-    function drawMove() {
+    function drawSim() {
+      var arcPct;
+      var color = hasGunLock ? COLOR_GUN_LOCK : COLOR_PERSONS_DEFAULT;
+      var totalSimTime = simDuration * (simValue / 100);
+
+      arcPct = ((totalSimTime - timeUntilNextState) / totalSimTime) * (simValue / 100);
+
+      _drawPerson(position.x, position.y, size, color, arcPct);
+    }
+
+    function drawMove(colorOverride) {
       var pctMove = (moveDuration - timeUntilNextState) / moveDuration;
       position.x = moveFromPosition.x + ((moveToPosition.x - moveFromPosition.x) * pctMove);
       position.y = moveFromPosition.y + ((moveToPosition.y - moveFromPosition.y) * pctMove);
 
-      drawActive();
+      drawActive(colorOverride);
     }
 
     function reset() {}
@@ -766,7 +829,7 @@ playable2 = (function() {
             state = States.MOVE_TO_ATTEMPT;
           }
 
-          timeUntilNextState = moveDuration
+          timeUntilNextState = moveDuration;
           _prepMove(state);
         }
       }
@@ -774,20 +837,95 @@ playable2 = (function() {
         drawMove();
 
         if (timeUntilNextState < 0) {
-          state = States.ACTIVE;
+          state = States.TRY_LOCK;
+
+          simValue = Math.floor(Math.random() * 100);
+          if (simValue <= vLockEffect) {
+            simValue = 100;
+          }
+
+          timeUntilNextState = simDuration * (simValue / 100);
         }
       }
       else if (state == States.MOVE_TO_ATTEMPT) {
         drawMove();
 
         if (timeUntilNextState < 0) {
-          state = States.ACTIVE;
+          state = States.TRY_ATTEMPT;
+
+          simValue = Math.floor(Math.random() * 100);
+          if (simValue > attemptRate) {
+            simValue = 100;
+          }
+
+          timeUntilNextState = simDuration * (simValue / 100);
         }
       }
-      else if (state == States.ACTIVE) {
-        drawActive();
-      }
+      else if (state == States.TRY_LOCK) {
+        drawSim();
 
+        if (timeUntilNextState < 0) {
+          // Gun lock prevented attempt
+          if (simValue == 100) {
+            state = States.MOVE_TO_SAVED;
+          }
+          // Move on to attempt
+          else {
+            state = States.MOVE_TO_ATTEMPT;
+            hasGunLock = false;
+          }
+
+          timeUntilNextState = moveDuration;
+          _prepMove(state);
+        }
+      }
+      else if (state == States.TRY_ATTEMPT) {
+        drawSim();
+
+        if (timeUntilNextState < 0) {
+          // Attempt was a success
+          if (simValue != 100) {
+            state = States.MOVE_TO_FATAL;
+          }
+          // Attempt was unsuccessful
+          else {
+            state = States.MOVE_TO_UNSUCCESSFUL;
+          }
+
+          timeUntilNextState = moveDuration;
+          _prepMove(state);
+        }
+      }
+      else if (state == States.MOVE_TO_SAVED) {
+        drawMove(COLOR_SAVED);
+
+        if (timeUntilNextState < 0) {
+          state = States.DONE_SAVED;
+        }
+      }
+      else if (state == States.MOVE_TO_UNSUCCESSFUL) {
+        drawMove(COLOR_UNSUCCESSFUL);
+
+        if (timeUntilNextState < 0) {
+          state = States.DONE_UNSUCCESSFUL;
+        }
+      }
+      else if (state == States.MOVE_TO_FATAL) {
+        drawMove(COLOR_FATAL);
+
+        if (timeUntilNextState < 0) {
+          state = States.DONE_FATAL;
+        }
+      }
+      else if (state == States.DONE_SAVED) {
+        drawActive(COLOR_SAVED);
+      }
+      else if (state == States.DONE_UNSUCCESSFUL) {
+        drawActive(COLOR_UNSUCCESSFUL);
+      }
+      else if (state == States.DONE_FATAL) {
+        drawActive(COLOR_FATAL);
+      }
     }
 
     function spawn(x, y) {
@@ -804,16 +942,23 @@ playable2 = (function() {
       }
     }
 
-    function _drawPerson(x, y, currSize, color) {
+    function _drawPerson(x, y, currSize, color, simPct) {
       ctx.beginPath();
       ctx.arc(position.x, position.y, currSize, 0, 2 * Math.PI, false);
       ctx.fillStyle = color;
       ctx.fill();
 
-      // Any scenario where we'd want to just draw the outline instead?
-      // context.lineWidth = 2;
-      // context.strokeStyle = '#00f';
-      // context.stroke();
+      if (typeof simPct !== 'undefined') {
+        ctx.beginPath();
+        ctx.arc(position.x, position.y, currSize, 0, 2 * simPct * Math.PI, false);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = COLOR_SIM;
+        ctx.stroke();
+
+        // eh, feels kinda hacky, but there's a lot of places where stroke is used.
+        // reverting back to its default lineWidth = 1
+        ctx.lineWidth = 1;
+      }
     }
 
     function _prepMove(nextState) {
@@ -831,9 +976,27 @@ playable2 = (function() {
       }
       else if (nextState == States.MOVE_TO_ATTEMPT) {
         x = 228;
-        y = 332
+        y = 332;
         width = 132;
-        height = 72
+        height = 72;
+      }
+      else if (nextState == States.MOVE_TO_UNSUCCESSFUL) {
+        x = 396;
+        y = 271;
+        width = 156;
+        height = 70;
+      }
+      else if (nextState == States.MOVE_TO_FATAL) {
+        x = 396;
+        y = 346;
+        width = 156;
+        height = 70;
+      }
+      else if (nextState == States.MOVE_TO_SAVED) {
+        x = 396;
+        y = 196;
+        width = 156;
+        height = 70;
       }
 
       moveFromPosition = {};
@@ -845,8 +1008,29 @@ playable2 = (function() {
       moveToPosition.y = y + margin + Math.floor(Math.random() * (height - margin * 2));
     }
 
+    function isDone() {
+      return state == States.DONE_SAVED ||
+          state == States.DONE_UNSUCCESSFUL ||
+          state == States.DONE_FATAL;
+    }
+
+    function isSaved() {
+      return state == States.DONE_SAVED;
+    }
+
+    function isUnsuccessful() {
+      return state == States.DONE_UNSUCCESSFUL;
+    }
+
+    function isFatal() {
+      return state == States.DONE_FATAL;
+    }
+
     return {
-      draw: draw,
+      isDone: isDone,
+      isSaved: isSaved,
+      isUnsuccessful: isUnsuccessful,
+      isFatal: isFatal,
       reset: reset,
       run: run,
       spawn: spawn
