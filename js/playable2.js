@@ -943,14 +943,17 @@ playable2 = (function() {
     }
 
     function _drawPerson(x, y, currSize, color, simPct) {
+      var arc;
+
       ctx.beginPath();
       ctx.arc(position.x, position.y, currSize, 0, 2 * Math.PI, false);
       ctx.fillStyle = color;
       ctx.fill();
 
       if (typeof simPct !== 'undefined') {
+        arc = (2 * Math.PI * simPct) - (Math.PI / 2);
         ctx.beginPath();
-        ctx.arc(position.x, position.y, currSize, 0, 2 * simPct * Math.PI, false);
+        ctx.arc(position.x, position.y, currSize, -1 * (Math.PI / 2), arc, false);
         ctx.lineWidth = 2;
         ctx.strokeStyle = COLOR_SIM;
         ctx.stroke();
@@ -971,31 +974,31 @@ playable2 = (function() {
       if (nextState == States.MOVE_TO_GUN_LOCK) {
         x = 228;
         y = 208;
-        width = 132;
-        height = 72;
+        width = 128;
+        height = 70;
       }
       else if (nextState == States.MOVE_TO_ATTEMPT) {
         x = 228;
         y = 332;
-        width = 132;
-        height = 72;
+        width = 128;
+        height = 70;
       }
       else if (nextState == States.MOVE_TO_UNSUCCESSFUL) {
         x = 396;
         y = 271;
-        width = 156;
+        width = 146;
         height = 70;
       }
       else if (nextState == States.MOVE_TO_FATAL) {
         x = 396;
         y = 346;
-        width = 156;
+        width = 146;
         height = 70;
       }
       else if (nextState == States.MOVE_TO_SAVED) {
         x = 396;
         y = 196;
-        width = 156;
+        width = 146;
         height = 70;
       }
 
