@@ -321,11 +321,13 @@ playable2 = (function() {
     var xSliderGap = 72;
     var sliderWidth = 12;
     var sliderHeight = 24;
+    var lockSliders = simSystem.isRunning() && !simSystem.isDone();
 
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = lockSliders ? COLOR_BUTTON_ON : '#000';
     ctx.font = '14px Helvetica';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
+
 
     // Slider 1 - % of people with gun locks
     leftMargin = (CANVAS_WIDTH - (lineWidth * 2) - xSliderGap) / 2;
@@ -397,7 +399,7 @@ playable2 = (function() {
     }
 
     // If we're currently dragging, update the positions of the slider
-    if (isDraggingSlider1) {
+    if (!lockSliders && isDraggingSlider1) {
       vWithLock = Math.round(((mouseX - xSlider1) / lineWidth) * 100);
       if (vWithLock < 0) {
         vWithLock = 0;
@@ -407,7 +409,7 @@ playable2 = (function() {
       }
       s1Pos = calcSliderPos(xSlider1, vWithLock);
     }
-    else if (isDraggingSlider2) {
+    else if (!lockSliders && isDraggingSlider2) {
       vLockEffect = Math.round(((mouseX - xSlider2) / lineWidth) * 100);
       if (vLockEffect < 0) {
         vLockEffect = 0;
