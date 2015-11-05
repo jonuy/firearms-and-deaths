@@ -17,7 +17,7 @@ playable2 = (function() {
 
   // Colors
   var COLOR_BOUNDARIES = '#000000';
-  var COLOR_PERSONS_DEFAULT = '#20353c';
+  var COLOR_PERSONS_DEFAULT = '#777777';
   var COLOR_PERSONS_W_LOCK = '#2c2863';
   var COLOR_GUN_LOCK = '#07a1c5';
   var COLOR_ATTEMPT = '#ef5f48';
@@ -30,7 +30,7 @@ playable2 = (function() {
   var COLOR_BUTTON_OFF = '#333333';
   var COLOR_BUTTON_ON = '#777777';
   var COLOR_BUTTON_TEXT = '#ffffff';
-  var COLOR_SIM = '#ff0000';
+  var COLOR_SIM_DEFAULT = '#ff0000';
 
 
   // Canvas and context
@@ -48,7 +48,7 @@ playable2 = (function() {
   var mouseY;
 
   // Current slider variable values
-  var vWithLock = 0;
+  var vWithLock = 15;
   var vLockEffect = 68;
 
   // Boolean. True if dragging one of the sliders.
@@ -57,6 +57,7 @@ playable2 = (function() {
 
   // Simulation system
   var simSystem;
+  var simSize = 100;
 
   // Results from the simulation
   var vSimSaved = 0;
@@ -254,7 +255,12 @@ playable2 = (function() {
     // If there was a click, switch the system on or off
     if (isClicked) {
       if (simSystem.isRunning()) {
-        simSystem.stop();
+        if (simSystem.isDone()) {
+          simSystem.start();
+        }
+        else {
+          simSystem.stop();
+        }
       }
       else {
         simSystem.start();
@@ -262,12 +268,18 @@ playable2 = (function() {
     }
 
     if (simSystem.isRunning()) {
-      ctx.fillStyle = COLOR_BUTTON_ON;
-      text = 'STOP SIMULATION';
+      if (simSystem.isDone()) {
+        ctx.fillStyle = COLOR_BUTTON_OFF;
+        text = 'RESTART';
+      }
+      else {
+        ctx.fillStyle = COLOR_BUTTON_ON;
+        text = 'STOP';
+      }
     }
     else {
       ctx.fillStyle = COLOR_BUTTON_OFF;
-      text = 'START SIMULATION';
+      text = 'START';
     }
 
     // Is mouse currently hovering over
@@ -284,6 +296,14 @@ playable2 = (function() {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(text, CANVAS_WIDTH / 2, boxMargin + (boxHeight / 2));
+
+    // Draw progress label
+    var progress = vSimSaved + vSimUnsuccessful + vSimFatal + ' / ' + simSize + ' persons';
+    ctx.font = '12px Helvetica';
+    ctx.fillStyle = '#000000';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Progress: ' + progress, CANVAS_WIDTH / 2, boxMargin + boxHeight + 12);
   }
 
   /**
@@ -316,7 +336,7 @@ playable2 = (function() {
     ctx.fillRect(xSlider1, yTop, lineSize, lineEdgeHeight);
     ctx.fillRect(xSlider1 + lineWidth, yTop, lineSize, lineEdgeHeight);
     // text label
-    ctx.fillText('% of people with gun locks', xSlider1 + (lineWidth / 2), yTop + lineEdgeHeight + 12);
+    ctx.fillText('Gun lock usage', xSlider1 + (lineWidth / 2), yTop + lineEdgeHeight + 12);
 
     // Slider 2 - % effectiveness of gun locks
     xSlider2 = leftMargin + lineWidth + xSliderGap;
@@ -326,7 +346,7 @@ playable2 = (function() {
     ctx.fillRect(xSlider2, yTop, lineSize, lineEdgeHeight);
     ctx.fillRect(xSlider2 + lineWidth, yTop, lineSize, lineEdgeHeight);
     // text label
-    ctx.fillText('% effectiveness of gun locks', xSlider2 + (lineWidth / 2), yTop + lineEdgeHeight + 12);
+    ctx.fillText('Chance at preventing attempt', xSlider2 + (lineWidth / 2), yTop + lineEdgeHeight + 12);
 
     // Slider positions
     function calcSliderPos(xSliderPos, val) {
@@ -437,8 +457,8 @@ playable2 = (function() {
     ctx.font = '14px Helvetica';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
-    ctx.fillText('Decision to attempt', area1X, area1Y - area1Radius - 20);
-    ctx.fillText('suicide by firearm', area1X, area1Y - area1Radius - 4);
+    ctx.fillText('Decision is made', area1X, area1Y - area1Radius - 20);
+    ctx.fillText('to attempt suicide', area1X, area1Y - area1Radius - 4);
 
     // Area 2 - Gun lock
     var area2Width = 132;
@@ -463,8 +483,14 @@ playable2 = (function() {
     ctx.font = '14px Helvetica';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
-    ctx.fillText('Gun lock on', area2X + area2Width / 2, area2Y - 18);
-    ctx.fillText('Chance at prevention: ' + vLockEffect + '%', area2X + area2Width / 2, area2Y - 4);
+    ctx.fillText('Trying to bypass gun lock', area2X + area2Width / 2, area2Y - 20);
+
+    ctx.fillStyle = '#a0a0a0';
+    ctx.fillText('Chance at prevention:    ', area2X - 4 + area2Width / 2, area2Y - 4);
+
+    ctx.fillStyle = COLOR_GUN_LOCK;
+    ctx.textAlign = 'left';
+    ctx.fillText(vLockEffect + '%', area2X + area2Width - 4, area2Y - 4);
 
     // Area 3 - Attempt with firearm
     var area3Width = 132;
@@ -486,7 +512,12 @@ playable2 = (function() {
     }
     // Label
     ctx.fillStyle = '#000';
-    ctx.fillText('Suicide attempt', area3X + area3Width / 2, area3Y - 18);
+    ctx.font = '14px Helvetica';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('Attempt at suicide', area3X + area3Width / 2, area3Y - 20);
+
+    ctx.fillStyle = '#a0a0a0';
     ctx.fillText('Chance of fatality: 85%', area3X + area3Width / 2, area3Y - 4);
 
     // Area 4 - Saved
@@ -510,14 +541,14 @@ playable2 = (function() {
     // Label
     ctx.fillStyle = COLOR_SAVED;
     ctx.textAlign = 'center';
-    ctx.font = '16px Helvetica';
+    ctx.font = 'bold 20px Helvetica';
     ctx.textBaseline = 'bottom';
-    ctx.fillText(vSimSaved + ' %', area4X + area4Width + 52, area4Y + (area4Height / 2));
+    ctx.fillText(vSimSaved, area4X + area4Width + 52, area4Y + (area4Height / 2));
 
     ctx.font = '14px Helvetica';
     ctx.fillStyle = '#000';
     ctx.textBaseline = 'top';
-    ctx.fillText('Saved', area4X + area4Width + 52, area4Y + (area4Height / 2));
+    ctx.fillText('Lives Saved', area4X + area4Width + 52, area4Y + (area4Height / 2));
 
     // Area 5 - Unsuccessful
     var area5Width = 156;
@@ -540,15 +571,15 @@ playable2 = (function() {
     // Label
     ctx.fillStyle = COLOR_UNSUCCESSFUL;
     ctx.textAlign = 'center';
-    ctx.font = '16px Helvetica';
+    ctx.font = 'bold 20px Helvetica';
     ctx.textBaseline = 'bottom';
-    ctx.fillText(vSimUnsuccessful + ' %', area5X + area5Width + 52, area5Y + (area5Height / 2));
+    ctx.fillText(vSimUnsuccessful, area5X + area5Width + 52, area5Y + (area5Height / 2));
 
     ctx.font = '14px Helvetica';
     ctx.fillStyle = '#000';
     ctx.textBaseline = 'top';
-    ctx.fillText('Unsuccessful', area5X + area5Width + 52, area5Y + (area5Height / 2));
-    ctx.fillText('attempt', area5X + area5Width + 52, area5Y + (area5Height / 2) + 14);
+    ctx.fillText('Non-Fatal', area5X + area5Width + 52, area5Y + (area5Height / 2));
+    ctx.fillText('Attempts', area5X + area5Width + 52, area5Y + (area5Height / 2) + 14);
 
     // Area 6 - Fatal
     var area6Width = 156;
@@ -571,23 +602,21 @@ playable2 = (function() {
     // Label
     ctx.fillStyle = COLOR_FATAL;
     ctx.textAlign = 'center';
-    ctx.font = '16px Helvetica';
+    ctx.font = 'bold 20px Helvetica';
     ctx.textBaseline = 'bottom';
-    ctx.fillText(vSimFatal +' %', area6X + area6Width + 52, area6Y + (area6Height / 2));
+    ctx.fillText(vSimFatal, area6X + area6Width + 52, area6Y + (area6Height / 2));
 
     ctx.font = '14px Helvetica';
     ctx.fillStyle = '#000';
     ctx.textBaseline = 'top';
     ctx.fillText('Fatal', area6X + area6Width + 52, area6Y + (area6Height / 2));
-    ctx.fillText('attempt', area6X + area6Width + 52, area6Y + (area6Height / 2) + 14);
+    ctx.fillText('Attempts', area6X + area6Width + 52, area6Y + (area6Height / 2) + 14);
   }
 
   /**
    * Manages the simulated people going through the simulation.
    */
   function SimSystem() {
-    var MAX_SIZE = 50;
-
     // Arrays of persons in diff states
     var pending = [];
     var active = [];
@@ -613,7 +642,7 @@ playable2 = (function() {
       active = [];
       done = [];
 
-      for (i = 0; i < MAX_SIZE; i++) {
+      for (i = 0; i < simSize; i++) {
         pending[pending.length] = new Person();
       }
 
@@ -668,9 +697,12 @@ playable2 = (function() {
       }
 
       // Update sim counts
-      vSimSaved = Math.floor((countSave / MAX_SIZE) * 100);
-      vSimUnsuccessful = Math.floor((countUnsuccessful / MAX_SIZE) * 100);
-      vSimFatal = Math.floor((countFatal / MAX_SIZE) * 100);
+      // vSimSaved = Math.floor((countSave / simSize) * 100);
+      // vSimUnsuccessful = Math.floor((countUnsuccessful / simSize) * 100);
+      // vSimFatal = Math.floor((countFatal / simSize) * 100);
+      vSimSaved = countSave;
+      vSimUnsuccessful = countUnsuccessful;
+      vSimFatal = countFatal;
 
       // Draw any in active
       for (i = 0; i < active.length; i++) {
@@ -716,6 +748,9 @@ playable2 = (function() {
 
     return {
       isRunning: function() {return this.running;},
+      isDone: function() {
+        return vSimSaved + vSimFatal + vSimUnsuccessful == simSize;
+      },
       init: init,
       run: run,
       start: start,
@@ -761,7 +796,7 @@ playable2 = (function() {
 
     function drawSpawn(deltaTime) {
       var currSize;
-      var color = hasGunLock ? COLOR_GUN_LOCK : COLOR_PERSONS_DEFAULT;
+      var color = hasGunLock ? COLOR_PERSONS_W_LOCK : COLOR_PERSONS_DEFAULT;
 
       // Scale size based on how much time is left
       currSize = Math.floor(((spawnDuration - timeUntilNextState) / spawnDuration) * size);
@@ -769,7 +804,7 @@ playable2 = (function() {
     }
 
     function drawSpawnTransition() {
-      var color = hasGunLock ? COLOR_GUN_LOCK : COLOR_PERSONS_DEFAULT;
+      var color = hasGunLock ? COLOR_PERSONS_W_LOCK : COLOR_PERSONS_DEFAULT;
 
       _drawPerson(position.x, position.y, size, color);
     }
@@ -778,7 +813,7 @@ playable2 = (function() {
       var color;
 
       if (typeof colorOverride === 'undefined') {
-        color = hasGunLock ? COLOR_GUN_LOCK : COLOR_PERSONS_DEFAULT;
+        color = hasGunLock ? COLOR_PERSONS_W_LOCK : COLOR_PERSONS_DEFAULT;
       }
       else {
         color = colorOverride;
@@ -789,12 +824,23 @@ playable2 = (function() {
 
     function drawSim() {
       var arcPct;
-      var color = hasGunLock ? COLOR_GUN_LOCK : COLOR_PERSONS_DEFAULT;
+      var colorSim;
+      var color = hasGunLock ? COLOR_PERSONS_W_LOCK : COLOR_PERSONS_DEFAULT;
       var totalSimTime = simDuration * (simValue / 100);
 
       arcPct = ((totalSimTime - timeUntilNextState) / totalSimTime) * (simValue / 100);
 
-      _drawPerson(position.x, position.y, size, color, arcPct);
+      if (state == States.TRY_LOCK) {
+        colorSim = COLOR_GUN_LOCK;
+      }
+      else if (state == States.TRY_ATTEMPT) {
+        colorSim = COLOR_ATTEMPT;
+      }
+      else {
+        colorSim = COLOR_SIM_DEFAULT;
+      }
+
+      _drawPerson(position.x, position.y, size, color, arcPct, colorSim);
     }
 
     function drawMove(colorOverride) {
@@ -942,7 +988,7 @@ playable2 = (function() {
       }
     }
 
-    function _drawPerson(x, y, currSize, color, simPct) {
+    function _drawPerson(x, y, currSize, color, simPct, simColor) {
       var arc;
 
       ctx.beginPath();
@@ -955,7 +1001,7 @@ playable2 = (function() {
         ctx.beginPath();
         ctx.arc(position.x, position.y, currSize, -1 * (Math.PI / 2), arc, false);
         ctx.lineWidth = 2;
-        ctx.strokeStyle = COLOR_SIM;
+        ctx.strokeStyle = simColor;
         ctx.stroke();
 
         // eh, feels kinda hacky, but there's a lot of places where stroke is used.
