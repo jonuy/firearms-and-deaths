@@ -86,9 +86,6 @@ playable2 = (function() {
    * Setup initial view of the canvas
    */
   function init() {
-    this.hasStarted = true;
-    startupInProgress = true;
-
     canvas = canvas2;
     ctx = canvas.getContext('2d');
 
@@ -102,6 +99,14 @@ playable2 = (function() {
     debugDrawGrid();
 
     window.requestAnimationFrame(draw);
+  }
+
+  /**
+   * ¯\_(ツ)_/¯
+   */
+  function start() {
+    startupInProgress = true;
+    this.hasStarted = true;
   }
 
   /**
@@ -344,11 +349,14 @@ playable2 = (function() {
 
       if (startupTimeLeft <= 0) {
         startupInProgress = false;
+        vWithLock = withLockStartVal;
+        vLockEffect = lockEffectStartVal;
       }
-
-      startupPctProgress = (startupDuration - startupTimeLeft) / startupDuration;
-      vWithLock = Math.floor(startupPctProgress * withLockStartVal);
-      vLockEffect = Math.floor(startupPctProgress * lockEffectStartVal);
+      else {
+        startupPctProgress = (startupDuration - startupTimeLeft) / startupDuration;
+        vWithLock = Math.floor(startupPctProgress * withLockStartVal);
+        vLockEffect = Math.floor(startupPctProgress * lockEffectStartVal);
+      }
     }
 
     ctx.fillStyle = lockSliders ? COLOR_BUTTON_ON : '#000';
@@ -1118,8 +1126,9 @@ playable2 = (function() {
 
   return {
     init: init,
+    start: start,
     hasStarted: hasStarted
   };
 })();
 
-// playable2.init();
+playable2.init();

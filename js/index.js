@@ -25,7 +25,7 @@ window.onscroll = function() {
   canvas2Top = canvas2.offsetTop + buffer;
   // Only init playable2 once it comes into view
   if (!playable2.hasStarted && screenBottom > canvas2Top) {
-    playable2.init();
+    playable2.start();
   }
 }
 
