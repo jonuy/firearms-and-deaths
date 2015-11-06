@@ -48,8 +48,14 @@ playable2 = (function() {
   var mouseY;
 
   // Current slider variable values
-  var vWithLock = 15;
-  var vLockEffect = 68;
+  var startupInProgress = false;
+  var startupDuration = 500;
+  var startupTimeLeft = startupDuration;
+  var startupLastTimeChecked = 0;
+  var withLockStartVal = 15;
+  var lockEffectStartVal = 68;
+  var vWithLock = 0;
+  var vLockEffect = 0;
 
   // Boolean. True if dragging one of the sliders.
   var isDraggingSlider1 = false;
@@ -81,6 +87,7 @@ playable2 = (function() {
    */
   function init() {
     this.hasStarted = true;
+    startupInProgress = true;
 
     canvas = canvas2;
     ctx = canvas.getContext('2d');
@@ -197,6 +204,8 @@ playable2 = (function() {
    * Main draw loop *
    ******************/
   function draw() {
+    var time;
+
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     if (GLOBAL_SHOW_DEBUG) {
@@ -303,7 +312,7 @@ playable2 = (function() {
     ctx.fillStyle = '#000000';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('Progress: ' + progress, CANVAS_WIDTH / 2, boxMargin + boxHeight + 12);
+    ctx.fillText(progress, CANVAS_WIDTH / 2, boxMargin + boxHeight + 10);
   }
 
   /**
@@ -314,7 +323,7 @@ playable2 = (function() {
     var lineSize = 3;
     var lineWidth = 156;
     var lineEdgeHeight = 24;
-    var yTop = 84;
+    var yTop = 86;
     var leftMargin;
     var xSlider1;
     var xSlider2;
@@ -322,6 +331,25 @@ playable2 = (function() {
     var sliderWidth = 12;
     var sliderHeight = 24;
     var lockSliders = simSystem.isRunning() && !simSystem.isDone();
+
+    if (startupInProgress) {
+      var startupPctProgress;
+
+      time = (new Date()).getTime();
+      if (startupLastTimeChecked > 0) {
+        startupTimeLeft -= time - startupLastTimeChecked;
+      }
+
+      startupLastTimeChecked = time;
+
+      if (startupTimeLeft <= 0) {
+        startupInProgress = false;
+      }
+
+      startupPctProgress = (startupDuration - startupTimeLeft) / startupDuration;
+      vWithLock = Math.floor(startupPctProgress * withLockStartVal);
+      vLockEffect = Math.floor(startupPctProgress * lockEffectStartVal);
+    }
 
     ctx.fillStyle = lockSliders ? COLOR_BUTTON_ON : '#000';
     ctx.font = '14px Helvetica';
@@ -1094,4 +1122,4 @@ playable2 = (function() {
   };
 })();
 
-playable2.init();
+// playable2.init();
