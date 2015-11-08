@@ -399,15 +399,31 @@ playable2 = (function() {
           y >= yTop && y <= yTop + sliderHeight;
     }
 
+    function isCursorOnLine(lx, ly, lw, lh, cx, cy) {
+      return cx >= lx && cx <= lx + lw && cy >= ly && cy <= ly + lh;
+    }
+
+    // -2 and +4 to give a little more vertical buffer to clicky clicky
+    var isOnLine1 = isCursorOnLine(xSlider1, yTop+12-1-2, lineWidth, lineSize+4, mouseX, mouseY);
+    var isOnLine2 = isCursorOnLine(xSlider2, yTop+12-1-2, lineWidth, lineSize+4, mouseX, mouseY);
+    var jumpLine1Val = false;
+    var jumpLine2Val = false;
+
     // Did it click one of the sliders?
     i = eventQueue.length;
     while (i--) {
-      // If we're dragging a slider, we're looking for a mouseup event
-      if (isDraggingSlider1 || isDraggingSlider2) {
-        if (eventQueue[i].type == 'mouseup') {
+      if (eventQueue[i].type == 'mouseup') {
+        // If we're dragging a slider, mouseup should end it
+        if (isDraggingSlider1 || isDraggingSlider2) {
           isDraggingSlider1 = false;
           isDraggingSlider2 = false;
           eventQueue.splice(i, 1);
+        }
+        else if (isOnLine1) {
+          jumpLine1Val = true;
+        }
+        else if (isOnLine2) {
+          jumpLine2Val = true;
         }
       }
       // Otherwise we'll look for a click
@@ -430,12 +446,16 @@ playable2 = (function() {
         isCursorOnSlider(s2Pos, mouseX, mouseY)) {
       canvas.style.cursor = 'ew-resize';
     }
+    // -2 and +4 to give a little more vertical buffer to clicky clicky
+    else if (isOnLine1 || isOnLine2) {
+      canvas.style.cursor = 'pointer';
+    }
     else {
       canvas.style.cursor = 'default';
     }
 
     // If we're currently dragging, update the positions of the slider
-    if (!lockSliders && isDraggingSlider1) {
+    if (!lockSliders && (isDraggingSlider1 || jumpLine1Val)) {
       vWithLock = Math.round(((mouseX - xSlider1) / lineWidth) * 100);
       if (vWithLock < 0) {
         vWithLock = 0;
@@ -445,7 +465,7 @@ playable2 = (function() {
       }
       s1Pos = calcSliderPos(xSlider1, vWithLock);
     }
-    else if (!lockSliders && isDraggingSlider2) {
+    else if (!lockSliders && (isDraggingSlider2 || jumpLine2Val)) {
       vLockEffect = Math.round(((mouseX - xSlider2) / lineWidth) * 100);
       if (vLockEffect < 0) {
         vLockEffect = 0;
