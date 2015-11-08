@@ -73,6 +73,9 @@ playable2 = (function() {
   // Event queue
   var eventQueue = [];
 
+  // So much random code everywhere. oh welllll
+  var hoverOnStartButton = false;
+
   /**
    * Utility console log that only prints when debug is on.
    */
@@ -299,6 +302,12 @@ playable2 = (function() {
     // Is mouse currently hovering over
     if (inButtonBounds(mouseX, mouseY)) {
       ctx.fillStyle = COLOR_BUTTON_HOVER;
+      hoverOnStartButton = true;
+      canvas.style.cursor = 'pointer';
+    }
+    else {
+      hoverOnStartButton = false;
+      canvas.style.cursor = 'default';
     }
 
     // Draw the button
@@ -440,18 +449,21 @@ playable2 = (function() {
       }
     }
 
-    // Change style of cursor if hovering over slider
-    if (isDraggingSlider1 || isDraggingSlider2 ||
-        isCursorOnSlider(s1Pos, mouseX, mouseY) ||
-        isCursorOnSlider(s2Pos, mouseX, mouseY)) {
-      canvas.style.cursor = 'ew-resize';
-    }
-    // -2 and +4 to give a little more vertical buffer to clicky clicky
-    else if (isOnLine1 || isOnLine2) {
-      canvas.style.cursor = 'pointer';
-    }
-    else {
-      canvas.style.cursor = 'default';
+    if (!lockSliders) {
+      // Change style of cursor if hovering over slider
+      if (isDraggingSlider1 || isDraggingSlider2 ||
+          isCursorOnSlider(s1Pos, mouseX, mouseY) ||
+          isCursorOnSlider(s2Pos, mouseX, mouseY)) {
+        canvas.style.cursor = 'ew-resize';
+      }
+      // -2 and +4 to give a little more vertical buffer to clicky clicky
+      else if (isOnLine1 || isOnLine2) {
+        canvas.style.cursor = 'pointer';
+      }
+      // Pointer styled as default as long as it's not also over the start button ... go see the drawStartButton code... sorryyyyyy
+      else if (!hoverOnStartButton) {
+        canvas.style.cursor = 'default';
+      }
     }
 
     // If we're currently dragging, update the positions of the slider
