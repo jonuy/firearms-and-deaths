@@ -439,9 +439,11 @@ playable1 = (function() {
     var hit = checkHit(event.layerX, event.layerY);
     if (hit) {
       drawStates(selectedState, hit, false);
+      canvas.style.cursor = 'pointer';
     }
     else if (hasStateHighlight) {
-      drawStates(selectedState, undefined, false); 
+      drawStates(selectedState, undefined, false);
+      canvas.style.cursor = 'default';
     }
   }
 
