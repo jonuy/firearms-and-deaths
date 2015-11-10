@@ -68,7 +68,9 @@ footer a {
 .playable-section-instructions {
   color: #a0a0a0;
   font-family: 'Helvetica';
+  font-size: 16px;
   font-style: italic;
+  line-height: initial;
   margin: 6px 0;
 }
 .playable-section-title {
@@ -82,6 +84,14 @@ footer a {
   font-family: 'forolight';
   font-size: 18px;
   line-height: 32px;
+}
+
+.section-blockquote {
+  font-family: 'forolight';
+  font-size: 18px;
+  line-height: 32px;
+  margin: 32px;
+  text-align: justify;
 }
 
 .section-title {
