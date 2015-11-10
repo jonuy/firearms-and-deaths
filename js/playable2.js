@@ -52,7 +52,7 @@ playable2 = (function() {
   var startupDuration = 500;
   var startupTimeLeft = startupDuration;
   var startupLastTimeChecked = 0;
-  var withLockStartVal = 15;
+  var withLockStartVal = 50;
   var lockEffectStartVal = 68;
   var vWithLock = 0;
   var vLockEffect = 0;
@@ -553,7 +553,7 @@ playable2 = (function() {
     ctx.font = '14px Helvetica';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
-    ctx.fillText('Trying to bypass gun lock', area2X + area2Width / 2, area2Y - 20);
+    ctx.fillText('Need to bypass gun lock', area2X + area2Width / 2, area2Y - 20);
 
     ctx.fillStyle = '#a0a0a0';
     ctx.fillText('Chance at prevention:    ', area2X - 4 + area2Width / 2, area2Y - 4);
@@ -649,7 +649,7 @@ playable2 = (function() {
     ctx.fillStyle = '#000';
     ctx.textBaseline = 'top';
     ctx.fillText('Non-Fatal', area5X + area5Width + 52, area5Y + (area5Height / 2));
-    ctx.fillText('Attempts', area5X + area5Width + 52, area5Y + (area5Height / 2) + 14);
+    ctx.fillText('Results', area5X + area5Width + 52, area5Y + (area5Height / 2) + 14);
 
     // Area 6 - Fatal
     var area6Width = 156;
@@ -680,7 +680,7 @@ playable2 = (function() {
     ctx.fillStyle = '#000';
     ctx.textBaseline = 'top';
     ctx.fillText('Fatal', area6X + area6Width + 52, area6Y + (area6Height / 2));
-    ctx.fillText('Attempts', area6X + area6Width + 52, area6Y + (area6Height / 2) + 14);
+    ctx.fillText('Results', area6X + area6Width + 52, area6Y + (area6Height / 2) + 14);
   }
 
   /**
