@@ -28,6 +28,15 @@ playable3 = (function() {
   var mouseX;
   var mouseY;
 
+  // Timers
+  var time;
+  var timeLastChecked;
+
+  // Vars to help with startup animation
+  var startupCounter = 0;
+  var startupCountdown = 16;
+  var startupInterval = 16;
+
   // Array of state objects
   var p3States = [];
   var p3StatesData = [
@@ -126,6 +135,20 @@ playable3 = (function() {
    * The main draw loop.
    */
   function draw() {
+    var deltaTime;
+
+    time = (new Date()).getTime();
+    // skip first frame
+    if (timeLastChecked === undefined) {
+      timeLastChecked = time;
+      window.requestAnimationFrame(draw);
+      return;
+    }
+    else {
+      deltaTime = time - timeLastChecked;
+      timeLastChecked = time;
+    }
+
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     if (GLOBAL_SHOW_DEBUG) {
@@ -133,6 +156,17 @@ playable3 = (function() {
       debugDrawPointer();
     }
 
+    // Startup animation logic
+    if (startupCounter < p3States.length) {
+      if (startupCountdown <= 0) {
+        p3States[startupCounter].isVisible = true;
+        startupCounter++;
+        startupCountdown = startupInterval;
+      }
+      else {
+        startupCountdown -= deltaTime;
+      }
+    }
     drawStates();
 
     window.requestAnimationFrame(draw);
@@ -146,7 +180,9 @@ playable3 = (function() {
     ctx.strokeStyle = 'black';
 
     for (i = 0; i < p3States.length; i++) {
-      p3States[i].draw();
+      if (p3States[i].isVisible) {
+        p3States[i].draw();
+      }
     }
   }
 

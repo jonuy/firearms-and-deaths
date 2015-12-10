@@ -25,6 +25,8 @@ function P3State() {
 
   this.ctx = undefined;
   this.canvas = undefined;
+
+  this.isVisible = false;
 }
 
 P3State.prototype.draw = function() {
