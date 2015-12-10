@@ -39,9 +39,6 @@ playable2 = (function() {
 
   // Boolean. True if this has already run init().
   var hasStarted = false
-  
-  // Boolean. True if we should draw debug stuff.
-  var showDebug = false;
 
   // Current mouse pointer positions
   var mouseX;

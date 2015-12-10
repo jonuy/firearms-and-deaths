@@ -11,6 +11,7 @@ window.onscroll = function() {
   var buffer;
   var canvas1Top;
   var canvas2Top;
+  var canvas3Top;
   var screenBottom;
 
   // Only start playable1 once it comes into view
@@ -26,6 +27,11 @@ window.onscroll = function() {
   // Only init playable2 once it comes into view
   if (!playable2.hasStarted && screenBottom > canvas2Top) {
     playable2.start();
+  }
+
+  canvas3Top = canvas3.offsetTop + buffer;
+  if (!playable3.hasStarted && screenBottom > canvas3Top) {
+    playable3.start();
   }
 }
 
