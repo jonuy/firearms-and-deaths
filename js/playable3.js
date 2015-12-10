@@ -92,7 +92,9 @@ playable3 = (function() {
     {abbr: 'WY', fullname: 'Wyoming', row: 2, col: 2, deaths: 358, saved: 243, lawEnacted: false}
   ];
 
+  // Playable state
   var hasStarted;
+  var isPaused;
 
   function init() {
     var i;
@@ -101,6 +103,7 @@ playable3 = (function() {
     canvas = canvas3;
     ctx = canvas.getContext('2d');
     hasStarted = false;
+    isPaused = false;
 
     // Initialize states
     for (i = 0; i < p3StatesData.length; i++) {
@@ -131,11 +134,25 @@ playable3 = (function() {
     draw();
   }
 
+  function pause() {
+    isPaused = true;
+  }
+
+  function resume() {
+    isPaused = false;
+    draw();
+  }
+
   /**
    * The main draw loop.
    */
   function draw() {
     var deltaTime;
+
+    // Break out of the draw loop if paused
+    if (isPaused === true) {
+      return;
+    }
 
     time = (new Date()).getTime();
     // skip first frame
@@ -266,9 +283,16 @@ playable3 = (function() {
   }
 
   return {
-    hasStarted: hasStarted,
+    hasStarted: function() {
+      return hasStarted;
+    },
+    isPaused: function() {
+      return isPaused;
+    },
     init: init,
-    start: start
+    start: start,
+    pause: pause,
+    resume: resume
   }
 })();
 
