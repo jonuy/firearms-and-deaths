@@ -34,8 +34,8 @@ playable3 = (function() {
 
   // Vars to help with startup animation
   var startupCounter = 0;
-  var startupCountdown = 16;
-  var startupInterval = 16;
+  var startupCountdown = 10;
+  var startupInterval = 10;
 
   // Array of state objects
   var p3States = [];
@@ -44,9 +44,9 @@ playable3 = (function() {
     {abbr: 'AL', fullname: 'Alabama', row: 5, col: 6, deaths: 1910, saved: 1298, lawEnacted: false},
     {abbr: 'AR', fullname: 'Arkansas', row: 4, col: 4, deaths: 1194, saved: 811, lawEnacted: false},
     {abbr: 'AZ', fullname: 'Arizona', row: 4, col: 1, deaths: 2612, saved: 1776, lawEnacted: false},
-    {abbr: 'CA', fullname: 'California', row: 3, col: 0, deaths: 6176, saved: 4199, lawEnacted: true},
+    {abbr: 'CA', fullname: 'California', row: 3, col: 0, deaths: 6176, saved: 0, lawEnacted: true},
     {abbr: 'CO', fullname: 'Colorado', row: 3, col: 2, deaths: 1892, saved: 1286, lawEnacted: false},
-    {abbr: 'CT', fullname: 'Connecticut', row: 2, col: 9, deaths: 424, saved: 288, lawEnacted: true},
+    {abbr: 'CT', fullname: 'Connecticut', row: 2, col: 9, deaths: 424, saved: 0, lawEnacted: true},
     {abbr: 'DE', fullname: 'Delaware', row: 3, col: 8, deaths: 195, saved: 132, lawEnacted: false},
     {abbr: 'FL', fullname: 'Florida', row: 6, col: 9, deaths: 6060, saved: 4120, lawEnacted: false},
     {abbr: 'GA', fullname: 'Georgia', row: 5, col: 7, deaths: 2957, saved: 2010, lawEnacted: false},
@@ -58,7 +58,7 @@ playable3 = (function() {
     {abbr: 'KS', fullname: 'Kansas', row: 4, col: 3, deaths: 981, saved: 667, lawEnacted: false},
     {abbr: 'KY', fullname: 'Kentucky', row: 3, col: 6, deaths: 1779, saved: 1209, lawEnacted: false},
     {abbr: 'LA', fullname: 'Louisiana', row: 5, col: 4, deaths: 1545, saved: 1050, lawEnacted: false},
-    {abbr: 'MA', fullname: 'Massachusetts', row: 1, col: 10, deaths: 517, saved: 351, lawEnacted: true},
+    {abbr: 'MA', fullname: 'Massachusetts', row: 1, col: 10, deaths: 517, saved: 0, lawEnacted: true},
     {abbr: 'MD', fullname: 'Maryland', row: 3, col: 7, deaths: 993, saved: 675, lawEnacted: false},
     {abbr: 'ME', fullname: 'Maine', row: 0, col: 10, deaths: 457, saved: 310, lawEnacted: false},
     {abbr: 'MI', fullname: 'Michigan', row: 1, col: 6, deaths: 2517, saved: 1711, lawEnacted: false},
@@ -73,7 +73,7 @@ playable3 = (function() {
     {abbr: 'NJ', fullname: 'New Jersey', row: 3, col: 9, deaths: 722, saved: 490, lawEnacted: false},
     {abbr: 'NM', fullname: 'New Mexico', row: 4, col: 2, deaths: 877, saved: 596, lawEnacted: false},
     {abbr: 'NV', fullname: 'Nevada', row: 2, col: 1, deaths: 1127, saved: 766, lawEnacted: false},
-    {abbr: 'NY', fullname: 'New York', row: 2, col: 8, deaths: 1945, saved: 1322, lawEnacted: true},
+    {abbr: 'NY', fullname: 'New York', row: 2, col: 8, deaths: 1945, saved: 0, lawEnacted: true},
     {abbr: 'OH', fullname: 'Ohio', row: 2, col: 6, deaths: 3034, saved: 2063, lawEnacted: false},
     {abbr: 'OK', fullname: 'Oklahoma', row: 5, col: 3, deaths: 1660, saved: 1128, lawEnacted: false},
     {abbr: 'OR', fullname: 'Oregon', row: 2, col: 0, deaths: 1475, saved: 1003, lawEnacted: false},
@@ -191,14 +191,29 @@ playable3 = (function() {
 
   function drawStates() {
     var i;
+    var mouseInBounds = false;
 
-    ctx.beginPath();
+    // Default cursor style
+    canvas.style.cursor = 'default';
+
+    // Default outline stroke style
     ctx.lineWidth = '2';
-    ctx.strokeStyle = 'black';
+    ctx.strokeStyle = '#000000';
+
+    // Default fill text style
+    ctx.font = '16px Helvetica';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
 
     for (i = 0; i < p3States.length; i++) {
       if (p3States[i].isVisible) {
-        p3States[i].draw();
+        if (p3States[i].isInBounds(mouseX, mouseY)) {
+          mouseInBounds = true;
+        }
+        else {
+          mouseInBounds = false;
+        }
+        p3States[i].draw(mouseInBounds);
       }
     }
   }
@@ -271,7 +286,12 @@ playable3 = (function() {
    * click event listener
    */
   function onClick(event) {
-    console.log('onClick');
+    for (i = 0; i < p3States.length; i++) {
+      if (p3States[i].isInBounds(mouseX, mouseY)) {
+        p3States[i].onclick();
+        return;
+      }
+    }
   }
 
   /**

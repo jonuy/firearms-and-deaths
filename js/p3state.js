@@ -29,23 +29,51 @@ function P3State() {
   this.isVisible = false;
 }
 
-P3State.prototype.draw = function() {
-  // --- Can this stuff be called once for all state draw calls?
-  // this.ctx.beginPath();
-  // this.ctx.lineWidth = '2';
-  // this.ctx.strokeStyle = 'black';
-  // ---
+P3State.prototype.draw = function(mouseInBounds) {
+  // Box fill color if law enacted
+  if (this.lawEnacted) {
+    this.ctx.fillStyle = '#07a1c5';
+    this.ctx.fillRect(this.x+1, this.y+1, this.size-2, this.size-2); 
+  }
 
-  this.ctx.rect(this.x, this.y, this.size, this.size);
-  this.ctx.stroke();
+  // Change color and cursor style if being hovered over
+  if (mouseInBounds) {
+    // Change cursor style
+    this.canvas.style.cursor = 'pointer';
 
-  this.ctx.font = '16px Helvetica';
-  this.ctx.fillStyle = '#000000';
-  this.ctx.textAlign = 'center';
-  this.ctx.textBaseline = 'middle';
+    // draw hover style
+    if (this.enabled) {
+      if (this.lawEnacted) {
+        this.ctx.fillStyle = '#63b3c5';
+      }
+      else {
+        this.ctx.fillStyle = '#cccccc';
+      }
+
+      this.ctx.fillRect(this.x+1, this.y+1, this.size-2, this.size-2);
+    }
+  }
+
+  // Draw outline
+  this.ctx.strokeRect(this.x, this.y, this.size, this.size);
+
+  // Draw label
+  if (this.lawEnacted) {
+    this.ctx.fillStyle = '#ffffff';
+  }
+  else {
+    this.ctx.fillStyle = '#000000';
+  }
   this.ctx.fillText(this.name, this.x + this.size / 2, this.y + this.size / 2);
 }
 
 P3State.prototype.onclick = function(event) {
+  if (this.enabled) {
+    this.lawEnacted = !this.lawEnacted;
+  }
+}
 
+P3State.prototype.isInBounds = function(xPos, yPos) {
+  return xPos >= this.x && xPos <= this.x + this.size &&
+         yPos >= this.y && yPos <= this.y + this.size;
 }
