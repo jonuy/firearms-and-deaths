@@ -27,22 +27,31 @@ function P3State() {
   this.canvas = undefined;
 
   this.isVisible = false;
+
+  this.eventListener = undefined;
 }
 
 P3State.prototype.draw = function(mouseInBounds) {
   // Box fill color if law enacted
   if (this.lawEnacted) {
-    this.ctx.fillStyle = '#07a1c5';
+    if (this.enabled) {
+      this.ctx.fillStyle = '#07a1c5';
+    }
+    // These are the 4 states that already have the law enacted
+    else {
+      this.ctx.fillStyle = '#88ca41';
+    }
+
     this.ctx.fillRect(this.x+1, this.y+1, this.size-2, this.size-2); 
   }
 
   // Change color and cursor style if being hovered over
   if (mouseInBounds) {
-    // Change cursor style
-    this.canvas.style.cursor = 'pointer';
-
-    // draw hover style
     if (this.enabled) {
+      // Change cursor style
+      this.canvas.style.cursor = 'pointer';
+
+      // Draw hover style
       if (this.lawEnacted) {
         this.ctx.fillStyle = '#63b3c5';
       }
@@ -51,6 +60,11 @@ P3State.prototype.draw = function(mouseInBounds) {
       }
 
       this.ctx.fillRect(this.x+1, this.y+1, this.size-2, this.size-2);
+    }
+
+    // Set as the hover event
+    if (this.eventListener !== undefined) {
+      this.eventListener.hoverEvent = this.name;
     }
   }
 

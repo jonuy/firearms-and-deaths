@@ -92,6 +92,12 @@ playable3 = (function() {
     {abbr: 'WY', fullname: 'Wyoming', row: 2, col: 2, deaths: 358, saved: 243, lawEnacted: false}
   ];
 
+  // Event listener
+  var stateEventListener = {
+    hoverEvent: undefined,
+    clickEvent: undefined
+  };
+
   // Playable state
   var hasStarted;
   var isPaused;
@@ -110,6 +116,7 @@ playable3 = (function() {
       p3s = new P3State();
       p3s.ctx = ctx;
       p3s.canvas = canvas;
+      p3s.eventListener = stateEventListener;
       p3s.x = STATE_CANVAS_MARGIN + p3StatesData[i].col * STATE_SIZE;
       p3s.y = STATE_CANVAS_MARGIN + p3StatesData[i].row * STATE_SIZE;
       p3s.name = p3StatesData[i].abbr;
@@ -184,11 +191,19 @@ playable3 = (function() {
         startupCountdown -= deltaTime;
       }
     }
+
+    // Draw state boxes
     drawStates();
+
+    // Do whatever in response to some custom events
+    runStateEvents();
 
     window.requestAnimationFrame(draw);
   }
 
+  /**
+   * Draw state boxes.
+   */
   function drawStates() {
     var i;
     var mouseInBounds = false;
@@ -216,6 +231,56 @@ playable3 = (function() {
         p3States[i].draw(mouseInBounds);
       }
     }
+  }
+
+  /**
+   * Draw state stats
+   */
+  function runStateEvents() {
+    var stateInfo;
+    var labelsX = STATE_CANVAS_MARGIN + 146;
+    var labelsY = STATE_CANVAS_MARGIN + 2;
+    var statsX = STATE_CANVAS_MARGIN + 380;
+    var statsY = STATE_CANVAS_MARGIN + 2;
+
+    if (stateEventListener.hoverEvent !== undefined) {
+      stateInfo = getStateInfo(stateEventListener.hoverEvent);
+
+      ctx.font = 'bold 18px Helvetica';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+
+      ctx.fillText(stateInfo.fullname, STATE_CANVAS_MARGIN, STATE_CANVAS_MARGIN);
+
+      ctx.font = '14px Helvetica';
+
+      ctx.fillText('Firearm suicides from 2010-2013:', labelsX, labelsY);
+      ctx.fillText(stateInfo.deaths, statsX, statsY);
+
+      if (stateInfo.saved > 0) {
+        ctx.fillText('Est. # of suicides if law was in place:', labelsX, labelsY + 20);
+        ctx.fillText(stateInfo.deaths - stateInfo.saved, statsX, statsY + 20);
+      }
+    }
+
+    if (stateEventListener.clickEvent !== undefined) {
+
+    }
+  }
+
+  /**
+   * Helper that gets state info for the given abbreviation.
+   */
+  function getStateInfo(abbr) {
+    var i;
+
+    for (i = 0; i < p3StatesData.length; i++) {
+      if (abbr == p3StatesData[i].abbr) {
+        return p3StatesData[i];
+      }
+    }
+
+    return undefined;
   }
 
   /**
