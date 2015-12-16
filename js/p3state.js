@@ -84,6 +84,10 @@ P3State.prototype.draw = function(mouseInBounds) {
 P3State.prototype.onclick = function(event) {
   if (this.enabled) {
     this.lawEnacted = !this.lawEnacted;
+
+    if (this.eventListener !== undefined) {
+      this.eventListener.clickEvent = this.name;
+    }
   }
 }
 

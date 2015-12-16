@@ -37,6 +37,11 @@ playable3 = (function() {
   var startupCountdown = 10;
   var startupInterval = 10;
 
+  // Bottom estimates bar animation
+  var estBarCountdown = 0;
+  var estBarInterval = 250;
+  var estBarOld = undefined;
+
   // Array of state objects
   var p3States = [];
   var p3StatesData = [
@@ -198,6 +203,12 @@ playable3 = (function() {
     // Do whatever in response to some custom events
     runStateEvents();
 
+    // Draw bottom bar of estimates
+    // HACK: because of how I've setup the events and when this thing draws, this needs
+    // to happen after runStateEvents() otherwise you'll see a flicker each time a
+    // state is clicked. Sure, I could refactor, but mehhhhhh.
+    drawEstimatesBar(deltaTime);
+
     window.requestAnimationFrame(draw);
   }
 
@@ -234,9 +245,86 @@ playable3 = (function() {
   }
 
   /**
+   * Draw bottom bar displaying suicide estimates.
+   */
+  function drawEstimatesBar(deltaTime) {
+    var i;
+    var label;
+    var useDefault = true;
+    var defaultTotal = 81187;
+    var defaultLabel = 'Firearm Suicides (2010-2013): ' + defaultTotal;
+    var estLabel = 'Est. Firearm Suicides (2010-2013): ';
+    var estSavedLabel = ' / Est. Saved: ';
+    var estTotal = defaultTotal;
+    var estSaved = 0;
+    var animProgress = 0;
+
+    for (i = 0; i < p3States.length; i++) {
+      if (p3States[i].lawEnacted && p3States[i].enabled) {
+        useDefault = false;
+        estTotal -= p3States[i].estSaved;
+        estSaved += p3States[i].estSaved;
+      }
+    }
+
+    if (estBarCountdown > 0) {
+      animProgress = estBarCountdown / estBarInterval;
+      estBarCountdown -= deltaTime;
+    }
+
+    if (estBarCountdown < 0) {
+      estBarCountdown = 0;
+    }
+
+    // Draw label
+    ctx.fillStyle = '#000000';
+    ctx.font = 'bold 14px Helvetica';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+
+    if (useDefault) {
+      label = defaultLabel;
+    }
+    else {
+      label = estLabel + estTotal + estSavedLabel + estSaved;
+    }
+    ctx.fillText(label, CANVAS_WIDTH / 2, 424);
+
+    var boxX = STATE_CANVAS_MARGIN;
+    var boxY = 444;
+    var boxW = CANVAS_WIDTH - (STATE_CANVAS_MARGIN * 2);
+    var boxH = 24;
+
+    // Draw box fill
+    var estWidth;
+    var origWidth = boxW - 2;
+    var drawTotal = estTotal;
+
+    if (animProgress > 0) {
+      drawTotal += Math.floor(animProgress * (estBarOld - estTotal));
+    }
+
+    estWidth = Math.floor((drawTotal / defaultTotal) * origWidth);
+
+    // Background color underneath the animated bar
+    ctx.fillStyle = '#07a1c5';
+    ctx.fillRect(boxX + 1, boxY + 1, boxW - 2, boxH - 2);
+    // Animated bar
+    ctx.fillStyle = '#ef5f48';
+    ctx.fillRect(boxX + 1, boxY + 1, estWidth, boxH - 2);
+
+    // Draw box outline
+    ctx.lineWidth = '2';
+    ctx.strokeStyle = '#000000';
+    ctx.strokeRect(boxX, boxY, boxW, boxH);
+  }
+
+  /**
    * Draw state stats
    */
   function runStateEvents() {
+    var i;
+    var hasLawEnacted;
     var stateInfo;
     var labelsX = STATE_CANVAS_MARGIN + 146;
     var labelsY = STATE_CANVAS_MARGIN + 2;
@@ -246,6 +334,7 @@ playable3 = (function() {
     if (stateEventListener.hoverEvent !== undefined) {
       stateInfo = getStateInfo(stateEventListener.hoverEvent);
 
+      ctx.fillStyle = '#000000';
       ctx.font = 'bold 18px Helvetica';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'top';
@@ -264,7 +353,32 @@ playable3 = (function() {
     }
 
     if (stateEventListener.clickEvent !== undefined) {
+      stateInfo = getStateInfo(stateEventListener.clickEvent);
 
+      // start countdown to new value
+      estBarCountdown = estBarInterval;
+
+      // Store the starting value for the animation
+      estBarOld = 0;
+      for (i = 0; i < p3States.length; i++) {
+        // This one was just clicked, so use the opposite
+        if (stateInfo.abbr == p3States[i].name) {
+          hasLawEnacted = !p3States[i].lawEnacted;
+        }
+        else {
+          hasLawEnacted = p3States[i].lawEnacted;
+        }
+
+        if (hasLawEnacted) {
+          estBarOld += p3States[i].estDeaths - p3States[i].estSaved;
+        }
+        else {
+          estBarOld += p3States[i].estDeaths;
+        }
+      }
+
+      // Clear the click event
+      stateEventListener.clickEvent = undefined;
     }
   }
 
