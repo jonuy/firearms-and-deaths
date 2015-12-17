@@ -3,6 +3,7 @@
 <head>
   <title>Firearms and Deaths</title>
   <meta name="description" content="A small exploration into suicides and unintentional deaths by firearms."/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <link rel="icon" type="image/png" href="favicon.png"/>
 
   <!-- Open Graph -->
@@ -22,7 +23,7 @@
       FIREARMS AND DEATHS
     </div>
     <div class="page-title-date">
-      Updated: October 19, 2015
+      Posted: October 17, 2015<br>Updated: December 16, 2015
     </div>
   </div>
 
@@ -129,8 +130,60 @@
 
     <div class="section-body">
       <p>
-        Coming soon.
+        So through the use of gun locks we've got a low-cost and easily attained means of reducing firearm fatalities. We have evidence that suggests putting policies in place to require their use does result in fewer suicides per capita. There's also public support for these laws with 67% of respondents in a 2013 survey saying they'd be in favor of a law that would require gun-owners to lock their firearms.
       </p>
+      <p>
+        Yet, only 11 states mandate that locks be provided with the sale of a firearm. And just 4 - California, Connecticut, Massachusetts and New York - have laws that require they be safely stored and locked when not in use. If more states enacted these policies, how many fewer gun suicides would we have seen?
+      </p>
+    </div>
+
+    <div class="playable-section-title">
+        What if states had gun lock policies in place
+    </div>
+    <div class="playable-section-instructions">
+      Click on states to see how many estimated lives could've been saved from 2010-2013.
+    </div>
+    <canvas id="canvas-3" width="648" height="470"></canvas>
+
+    <div class="section-body">
+      <p>
+        Working off of data showing that gun lock laws result in 68% fewer firearm suicides per capita, if all 50 states had some form of the policy in effect, an estimated 49,024 lives would've been saved.
+      </p>
+      <p>
+        Learn more from the resources below. Share your knowledge with others. And support an organization to help push through smart gun laws in your state.
+      </p>
+    </div>
+
+    <div class="resources">
+      <div class="section-title">
+        RESOURCES
+      </div>
+      <p>
+        This is a list of resources I came across while learning about this topic. Not all are necessarily referenced above, but they did help form and shape the opinions stated.
+      </p>
+      <ul>
+        <li>
+          Law Center to Prevent Gun Violence. "Safe Storage & Gun Locks Policy Summary" <a href="http://smartgunlaws.org/safe-storage-gun-locks-policy-summary/">http://smartgunlaws.org/safe-storage-gun-locks-policy-summary/</a>
+        </li>
+        <li>
+          Law Center to Prevent Gun Violence. "Statistics on Gun Deaths & Injuries" <a href="http://smartgunlaws.org/gun-deaths-and-injuries-statistics/">http://smartgunlaws.org/gun-deaths-and-injuries-statistics/</a>
+        </li>
+        <li>
+          Madeline Drexler. "Guns & Suicide: The Hidden Toll" <a href="http://www.hsph.harvard.edu/magazine-features/guns-and-suicide-the-hidden-toll/">http://www.hsph.harvard.edu/magazine-features/guns-and-suicide-the-hidden-toll/</a>
+        </li>
+        <li>
+          DoSomething.org. "11 Facts About Guns" <a href="https://www.dosomething.org/facts/11-facts-about-guns">https://www.dosomething.org/facts/11-facts-about-guns</a>
+        </li>
+        <li>
+          Catherine W. Barber, MPA, Matthew J. Miller, MD, ScD. "Reducing a Suicidal Person's Access to Lethal Means of Suicide" <a href="http://actionallianceforsuicideprevention.org/sites/actionallianceforsuicideprevention.org/files/Reducing%20a%20Suicidal%20Persons%20Access%20to%20Lethal.pdf">http://actionallianceforsuicideprevention.org/sites/actionallianceforsuicideprevention.org/files/Reducing%20a%20Suicidal%20Persons%20Access%20to%20Lethal.pdf</a>
+        </li>
+        <li>
+          Pew Research Center. "Suicides account for most gun deaths" <a href="http://www.pewresearch.org/fact-tank/2013/05/24/suicides-account-for-most-gun-deaths/">http://www.pewresearch.org/fact-tank/2013/05/24/suicides-account-for-most-gun-deaths/</a>
+        </li>
+        <li>
+          Pew Research Center. "Gun Homicide Rate Down 49% Since 1993 Peak; Public Unaware" <a href="http://www.pewsocialtrends.org/2013/05/07/gun-homicide-rate-down-49-since-1993-peak-public-unaware/">http://www.pewsocialtrends.org/2013/05/07/gun-homicide-rate-down-49-since-1993-peak-public-unaware/</a>
+        </li>
+      </ul>
     </div>
 
     <footer class="footer">
@@ -160,6 +213,8 @@
   <script type="text/javascript" src="js/index.js"></script>
   <script type="text/javascript" src="js/playable1.js"></script>
   <script type="text/javascript" src="js/playable2.js"></script>
+  <script type="text/javascript" src="js/p3state.js"></script>
+  <script type="text/javascript" src="js/playable3.js"></script>
 
   <!-- Google Analytics -->
   <script>

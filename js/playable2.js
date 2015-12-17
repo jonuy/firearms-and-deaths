@@ -39,9 +39,9 @@ playable2 = (function() {
 
   // Boolean. True if this has already run init().
   var hasStarted = false
-  
-  // Boolean. True if we should draw debug stuff.
-  var showDebug = false;
+
+  // Boolean. True if started, but paused.
+  var isPaused = false;
 
   // Current mouse pointer positions
   var mouseX;
@@ -109,7 +109,16 @@ playable2 = (function() {
    */
   function start() {
     startupInProgress = true;
-    this.hasStarted = true;
+    hasStarted = true;
+  }
+
+  function pause() {
+    isPaused = true;
+  }
+
+  function resume() {
+    isPaused = false;
+    draw();
   }
 
   /**
@@ -213,6 +222,10 @@ playable2 = (function() {
    ******************/
   function draw() {
     var time;
+
+    if (isPaused === true) {
+      return;
+    }
 
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
@@ -1159,7 +1172,14 @@ playable2 = (function() {
   return {
     init: init,
     start: start,
-    hasStarted: hasStarted
+    pause: pause,
+    resume: resume,
+    hasStarted: function() {
+      return hasStarted;
+    },
+    isPaused: function() {
+      return isPaused;
+    },
   };
 })();
 
