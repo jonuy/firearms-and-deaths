@@ -25,7 +25,7 @@ canvas {
 footer {
   border-top: 1px solid #a0a0a0;
   font-family: 'forolight';
-  margin: 24px 0;
+  margin-bottom: 24px;
   padding: 24px 0;
   text-align: center;
 }
