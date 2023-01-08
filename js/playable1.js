@@ -5,7 +5,7 @@
  * deaths were there by firearms for a given year. Of those, what percentage
  * were accidental deaths and what percentage were by suicide.
  *
- * @todo: Possible consideration - instead of each being out of a 100 persons, 
+ * @todo: Possible consideration - instead of each being out of a 100 persons,
  * normalize the total number of persons displayed for each state. So if MD has
  * the most firearm deaths overall, that'll have 100 shown. And if VA has only
  * 10% of that, then only show 10 there.
@@ -16,8 +16,7 @@
 var playable1;
 var playable1Canvas = document.getElementById('canvas-1');
 
-playable1 = (function() {
-
+playable1 = (function () {
   var canvas;
   var ctx;
   var selectedState;
@@ -41,56 +40,456 @@ playable1 = (function() {
 
   // Data from 2010-2013 retrieved from http://webappa.cdc.gov/sasweb/ncipc/dataRestriction_inj.html
   var STATE_DATA = {
-    'AK': {name: 'Alaska', suicide_normalized: 4, accident_normalized: 1, total_normalized: 5, suicide_raw: 424, accident_raw: 11, total_raw: 546},
-    'AL': {name: 'Alabama', suicide_normalized: 16, accident_normalized: 1, total_normalized: 27, suicide_raw: 1910, accident_raw: 99, total_raw: 3258},
-    'AR': {name: 'Arkansas', suicide_normalized: 10, accident_normalized: 1, total_normalized: 16, suicide_raw: 1194, accident_raw: 50, total_raw: 1872},
-    'AZ': {name: 'Arizona', suicide_normalized: 21, accident_normalized: 1, total_normalized: 31, suicide_raw: 2612, accident_raw: 31, total_raw: 3782},
-    'CA': {name: 'California', suicide_normalized: 51, accident_normalized: 1, total_normalized: 100, suicide_raw: 6176, accident_raw: 115, total_raw: 12033},
-    'CO': {name: 'Colorado', suicide_normalized: 15, accident_normalized: 1, total_normalized: 20, suicide_raw: 1892, accident_raw: 35, total_raw: 2419},
-    'CT': {name: 'Connecticut', suicide_normalized: 4, accident_normalized: 0, total_normalized: 7, suicide_raw: 424, accident_raw: 0, total_raw: 807},
-    'DE': {name: 'Delaware', suicide_normalized: 2, accident_normalized: 0, total_normalized: 3, suicide_raw: 195, accident_raw: 0, total_raw: 361},
-    'FL': {name: 'Florida', suicide_normalized: 50, accident_normalized: 1, total_normalized: 79, suicide_raw: 6060, accident_raw: 89, total_raw: 9561},
-    'GA': {name: 'Georgia', suicide_normalized: 25, accident_normalized: 1, total_normalized: 42, suicide_raw: 2957, accident_raw: 129, total_raw: 5003},
-    'HI': {name: 'Hawaii', suicide_normalized: 2, accident_normalized: 0, total_normalized: 2, suicide_raw: 150, accident_raw: 0, total_raw: 183},
-    'IA': {name: 'Iowa', suicide_normalized: 7, accident_normalized: 0, total_normalized: 8, suicide_raw: 758, accident_raw: 12, total_raw: 903},
-    'ID': {name: 'Idaho', suicide_normalized: 6, accident_normalized: 0, total_normalized: 7, suicide_raw: 725, accident_raw: 21, total_raw: 824},
-    'IL': {name: 'Illinois', suicide_normalized: 16, accident_normalized: 1, total_normalized: 37, suicide_raw: 1889, accident_raw: 77, total_raw: 4473},
-    'IN': {name: 'Indiana', suicide_normalized: 16, accident_normalized: 1, total_normalized: 25, suicide_raw: 1902, accident_raw: 61, total_raw: 3004},
-    'KS': {name: 'Kansas', suicide_normalized: 8, accident_normalized: 1, total_normalized: 11, suicide_raw: 981, accident_raw: 29, total_raw: 1337},
-    'KY': {name: 'Kentucky', suicide_normalized: 15, accident_normalized: 1, total_normalized: 20, suicide_raw: 1779, accident_raw: 69, total_raw: 2449},
-    'LA': {name: 'Louisiana', suicide_normalized: 13, accident_normalized: 1, total_normalized: 29, suicide_raw: 1545, accident_raw: 146, total_raw: 3460},
-    'MA': {name: 'Massachusetts', suicide_normalized: 4, accident_normalized: 0, total_normalized: 8, suicide_raw: 517, accident_raw: 0, total_raw: 970},
-    'MD': {name: 'Maryland', suicide_normalized: 8, accident_normalized: 1, total_normalized: 19, suicide_raw: 993, accident_raw: 15, total_raw: 2247},
-    'ME': {name: 'Maine', suicide_normalized: 3, accident_normalized: 0, total_normalized: 4, suicide_raw: 457, accident_raw: 0, total_raw: 537},
-    'MI': {name: 'Michigan', suicide_normalized: 21, accident_normalized: 1, total_normalized: 39, suicide_raw: 2517, accident_raw: 43, total_raw: 4644},
-    'MN': {name: 'Minnesota', suicide_normalized: 10, accident_normalized: 1, total_normalized: 13, suicide_raw: 1251, accident_raw: 17, total_raw: 1570},
-    'MO': {name: 'Missouri', suicide_normalized: 18, accident_normalized: 1, total_normalized: 29, suicide_raw: 2104, accident_raw: 72, total_raw: 3462},
-    'MS': {name: 'Mississippi', suicide_normalized: 9, accident_normalized: 1, total_normalized: 17, suicide_raw: 1099, accident_raw: 67, total_raw: 2065},
-    'MT': {name: 'Montana', suicide_normalized: 5, accident_normalized: 0, total_normalized: 6, suicide_raw: 593, accident_raw: 17, total_raw: 674},
-    'NC': {name: 'North Carolina', suicide_normalized: 24, accident_normalized: 1, total_normalized: 39, suicide_raw: 2915, accident_raw: 115, total_raw: 4675},
-    'ND': {name: 'North Dakota', suicide_normalized: 2, accident_normalized: 0, total_normalized: 2, suicide_raw: 246, accident_raw: 0, total_raw: 285},
-    'NE': {name: 'Nebraska', suicide_normalized: 3, accident_normalized: 1, total_normalized: 5, suicide_raw: 443, accident_raw: 19, total_raw: 648},
-    'NH': {name: 'New Hampshire', suicide_normalized: 3, accident_normalized: 0, total_normalized: 3, suicide_raw: 356, accident_raw: 11, total_raw: 420},
-    'NJ': {name: 'New Jersey', suicide_normalized: 6, accident_normalized: 1, total_normalized: 16, suicide_raw: 722, accident_raw: 13, total_raw: 1888},
-    'NM': {name: 'New Mexico', suicide_normalized: 7, accident_normalized: 1, total_normalized: 10, suicide_raw: 877, accident_raw: 10, total_raw: 1256},
-    'NV': {name: 'Nevada', suicide_normalized: 10, accident_normalized: 1, total_normalized: 13, suicide_raw: 1127, accident_raw: 13, total_raw: 1526},
-    'NY': {name: 'New York', suicide_normalized: 16, accident_normalized: 1, total_normalized: 32, suicide_raw: 1945, accident_raw: 27, total_raw: 3848},
-    'OH': {name: 'Ohio', suicide_normalized: 25, accident_normalized: 1, total_normalized: 41, suicide_raw: 3034, accident_raw: 55, total_raw: 4927},
-    'OK': {name: 'Oklahoma', suicide_normalized: 14, accident_normalized: 1, total_normalized: 20, suicide_raw: 1660, accident_raw: 69, total_raw: 2417},
-    'OR': {name: 'Oregon', suicide_normalized: 12, accident_normalized: 1, total_normalized: 15, suicide_raw: 1475, accident_raw: 19, total_raw: 1783},
-    'PA': {name: 'Pennsylvania', suicide_normalized: 28, accident_normalized: 1, total_normalized: 47, suicide_raw: 3382, accident_raw: 139, total_raw: 5649},
-    'RI': {name: 'Rhode Island', suicide_normalized: 1, accident_normalized: 0, total_normalized: 1, suicide_raw: 110, accident_raw: 0, total_raw: 180},
-    'SC': {name: 'South Carolina', suicide_normalized: 15, accident_normalized: 1, total_normalized: 24, suicide_raw: 1721, accident_raw: 78, total_raw: 2841},
-    'SD': {name: 'South Dakota', suicide_normalized: 3, accident_normalized: 0, total_normalized: 3, suicide_raw: 272, accident_raw: 0, total_raw: 310},
-    'TN': {name: 'Tennessee', suicide_normalized: 20, accident_normalized: 1, total_normalized: 32, suicide_raw: 2478, accident_raw: 103, total_raw: 3905},
-    'TX': {name: 'Texas', suicide_normalized: 57, accident_normalized: 1, total_normalized: 90, suicide_raw: 6910, accident_raw: 194, total_raw: 10834},
-    'UT': {name: 'Utah', suicide_normalized: 10, accident_normalized: 0, total_normalized: 11, suicide_raw: 1121, accident_raw: 10, total_raw: 1285},
-    'VA': {name: 'Virginia', suicide_normalized: 20, accident_normalized: 1, total_normalized: 29, suicide_raw: 2368, accident_raw: 45, total_raw: 3447},
-    'VT': {name: 'Vermont', suicide_normalized: 2, accident_normalized: 0, total_normalized: 2, suicide_raw: 245, accident_raw: 0, total_raw: 269},
-    'WA': {name: 'Washington', suicide_normalized: 16, accident_normalized: 1, total_normalized: 21, suicide_raw: 1971, accident_raw: 33, total_raw: 2546},
-    'WI': {name: 'Wisconsin', suicide_normalized: 13, accident_normalized: 1, total_normalized: 17, suicide_raw: 1514, accident_raw: 19, total_raw: 1999},
-    'WV': {name: 'West Virginia', suicide_normalized: 7, accident_normalized: 1, total_normalized: 9, suicide_raw: 833, accident_raw: 23, total_raw: 1109},
-    'WY': {name: 'Wyoming', suicide_normalized: 3, accident_normalized: 0, total_normalized: 3, suicide_raw: 358, accident_raw: 13, total_raw: 407}
+    AK: {
+      name: 'Alaska',
+      suicide_normalized: 4,
+      accident_normalized: 1,
+      total_normalized: 5,
+      suicide_raw: 424,
+      accident_raw: 11,
+      total_raw: 546,
+    },
+    AL: {
+      name: 'Alabama',
+      suicide_normalized: 16,
+      accident_normalized: 1,
+      total_normalized: 27,
+      suicide_raw: 1910,
+      accident_raw: 99,
+      total_raw: 3258,
+    },
+    AR: {
+      name: 'Arkansas',
+      suicide_normalized: 10,
+      accident_normalized: 1,
+      total_normalized: 16,
+      suicide_raw: 1194,
+      accident_raw: 50,
+      total_raw: 1872,
+    },
+    AZ: {
+      name: 'Arizona',
+      suicide_normalized: 21,
+      accident_normalized: 1,
+      total_normalized: 31,
+      suicide_raw: 2612,
+      accident_raw: 31,
+      total_raw: 3782,
+    },
+    CA: {
+      name: 'California',
+      suicide_normalized: 51,
+      accident_normalized: 1,
+      total_normalized: 100,
+      suicide_raw: 6176,
+      accident_raw: 115,
+      total_raw: 12033,
+    },
+    CO: {
+      name: 'Colorado',
+      suicide_normalized: 15,
+      accident_normalized: 1,
+      total_normalized: 20,
+      suicide_raw: 1892,
+      accident_raw: 35,
+      total_raw: 2419,
+    },
+    CT: {
+      name: 'Connecticut',
+      suicide_normalized: 4,
+      accident_normalized: 0,
+      total_normalized: 7,
+      suicide_raw: 424,
+      accident_raw: 0,
+      total_raw: 807,
+    },
+    DE: {
+      name: 'Delaware',
+      suicide_normalized: 2,
+      accident_normalized: 0,
+      total_normalized: 3,
+      suicide_raw: 195,
+      accident_raw: 0,
+      total_raw: 361,
+    },
+    FL: {
+      name: 'Florida',
+      suicide_normalized: 50,
+      accident_normalized: 1,
+      total_normalized: 79,
+      suicide_raw: 6060,
+      accident_raw: 89,
+      total_raw: 9561,
+    },
+    GA: {
+      name: 'Georgia',
+      suicide_normalized: 25,
+      accident_normalized: 1,
+      total_normalized: 42,
+      suicide_raw: 2957,
+      accident_raw: 129,
+      total_raw: 5003,
+    },
+    HI: {
+      name: 'Hawaii',
+      suicide_normalized: 2,
+      accident_normalized: 0,
+      total_normalized: 2,
+      suicide_raw: 150,
+      accident_raw: 0,
+      total_raw: 183,
+    },
+    IA: {
+      name: 'Iowa',
+      suicide_normalized: 7,
+      accident_normalized: 0,
+      total_normalized: 8,
+      suicide_raw: 758,
+      accident_raw: 12,
+      total_raw: 903,
+    },
+    ID: {
+      name: 'Idaho',
+      suicide_normalized: 6,
+      accident_normalized: 0,
+      total_normalized: 7,
+      suicide_raw: 725,
+      accident_raw: 21,
+      total_raw: 824,
+    },
+    IL: {
+      name: 'Illinois',
+      suicide_normalized: 16,
+      accident_normalized: 1,
+      total_normalized: 37,
+      suicide_raw: 1889,
+      accident_raw: 77,
+      total_raw: 4473,
+    },
+    IN: {
+      name: 'Indiana',
+      suicide_normalized: 16,
+      accident_normalized: 1,
+      total_normalized: 25,
+      suicide_raw: 1902,
+      accident_raw: 61,
+      total_raw: 3004,
+    },
+    KS: {
+      name: 'Kansas',
+      suicide_normalized: 8,
+      accident_normalized: 1,
+      total_normalized: 11,
+      suicide_raw: 981,
+      accident_raw: 29,
+      total_raw: 1337,
+    },
+    KY: {
+      name: 'Kentucky',
+      suicide_normalized: 15,
+      accident_normalized: 1,
+      total_normalized: 20,
+      suicide_raw: 1779,
+      accident_raw: 69,
+      total_raw: 2449,
+    },
+    LA: {
+      name: 'Louisiana',
+      suicide_normalized: 13,
+      accident_normalized: 1,
+      total_normalized: 29,
+      suicide_raw: 1545,
+      accident_raw: 146,
+      total_raw: 3460,
+    },
+    MA: {
+      name: 'Massachusetts',
+      suicide_normalized: 4,
+      accident_normalized: 0,
+      total_normalized: 8,
+      suicide_raw: 517,
+      accident_raw: 0,
+      total_raw: 970,
+    },
+    MD: {
+      name: 'Maryland',
+      suicide_normalized: 8,
+      accident_normalized: 1,
+      total_normalized: 19,
+      suicide_raw: 993,
+      accident_raw: 15,
+      total_raw: 2247,
+    },
+    ME: {
+      name: 'Maine',
+      suicide_normalized: 3,
+      accident_normalized: 0,
+      total_normalized: 4,
+      suicide_raw: 457,
+      accident_raw: 0,
+      total_raw: 537,
+    },
+    MI: {
+      name: 'Michigan',
+      suicide_normalized: 21,
+      accident_normalized: 1,
+      total_normalized: 39,
+      suicide_raw: 2517,
+      accident_raw: 43,
+      total_raw: 4644,
+    },
+    MN: {
+      name: 'Minnesota',
+      suicide_normalized: 10,
+      accident_normalized: 1,
+      total_normalized: 13,
+      suicide_raw: 1251,
+      accident_raw: 17,
+      total_raw: 1570,
+    },
+    MO: {
+      name: 'Missouri',
+      suicide_normalized: 18,
+      accident_normalized: 1,
+      total_normalized: 29,
+      suicide_raw: 2104,
+      accident_raw: 72,
+      total_raw: 3462,
+    },
+    MS: {
+      name: 'Mississippi',
+      suicide_normalized: 9,
+      accident_normalized: 1,
+      total_normalized: 17,
+      suicide_raw: 1099,
+      accident_raw: 67,
+      total_raw: 2065,
+    },
+    MT: {
+      name: 'Montana',
+      suicide_normalized: 5,
+      accident_normalized: 0,
+      total_normalized: 6,
+      suicide_raw: 593,
+      accident_raw: 17,
+      total_raw: 674,
+    },
+    NC: {
+      name: 'North Carolina',
+      suicide_normalized: 24,
+      accident_normalized: 1,
+      total_normalized: 39,
+      suicide_raw: 2915,
+      accident_raw: 115,
+      total_raw: 4675,
+    },
+    ND: {
+      name: 'North Dakota',
+      suicide_normalized: 2,
+      accident_normalized: 0,
+      total_normalized: 2,
+      suicide_raw: 246,
+      accident_raw: 0,
+      total_raw: 285,
+    },
+    NE: {
+      name: 'Nebraska',
+      suicide_normalized: 3,
+      accident_normalized: 1,
+      total_normalized: 5,
+      suicide_raw: 443,
+      accident_raw: 19,
+      total_raw: 648,
+    },
+    NH: {
+      name: 'New Hampshire',
+      suicide_normalized: 3,
+      accident_normalized: 0,
+      total_normalized: 3,
+      suicide_raw: 356,
+      accident_raw: 11,
+      total_raw: 420,
+    },
+    NJ: {
+      name: 'New Jersey',
+      suicide_normalized: 6,
+      accident_normalized: 1,
+      total_normalized: 16,
+      suicide_raw: 722,
+      accident_raw: 13,
+      total_raw: 1888,
+    },
+    NM: {
+      name: 'New Mexico',
+      suicide_normalized: 7,
+      accident_normalized: 1,
+      total_normalized: 10,
+      suicide_raw: 877,
+      accident_raw: 10,
+      total_raw: 1256,
+    },
+    NV: {
+      name: 'Nevada',
+      suicide_normalized: 10,
+      accident_normalized: 1,
+      total_normalized: 13,
+      suicide_raw: 1127,
+      accident_raw: 13,
+      total_raw: 1526,
+    },
+    NY: {
+      name: 'New York',
+      suicide_normalized: 16,
+      accident_normalized: 1,
+      total_normalized: 32,
+      suicide_raw: 1945,
+      accident_raw: 27,
+      total_raw: 3848,
+    },
+    OH: {
+      name: 'Ohio',
+      suicide_normalized: 25,
+      accident_normalized: 1,
+      total_normalized: 41,
+      suicide_raw: 3034,
+      accident_raw: 55,
+      total_raw: 4927,
+    },
+    OK: {
+      name: 'Oklahoma',
+      suicide_normalized: 14,
+      accident_normalized: 1,
+      total_normalized: 20,
+      suicide_raw: 1660,
+      accident_raw: 69,
+      total_raw: 2417,
+    },
+    OR: {
+      name: 'Oregon',
+      suicide_normalized: 12,
+      accident_normalized: 1,
+      total_normalized: 15,
+      suicide_raw: 1475,
+      accident_raw: 19,
+      total_raw: 1783,
+    },
+    PA: {
+      name: 'Pennsylvania',
+      suicide_normalized: 28,
+      accident_normalized: 1,
+      total_normalized: 47,
+      suicide_raw: 3382,
+      accident_raw: 139,
+      total_raw: 5649,
+    },
+    RI: {
+      name: 'Rhode Island',
+      suicide_normalized: 1,
+      accident_normalized: 0,
+      total_normalized: 1,
+      suicide_raw: 110,
+      accident_raw: 0,
+      total_raw: 180,
+    },
+    SC: {
+      name: 'South Carolina',
+      suicide_normalized: 15,
+      accident_normalized: 1,
+      total_normalized: 24,
+      suicide_raw: 1721,
+      accident_raw: 78,
+      total_raw: 2841,
+    },
+    SD: {
+      name: 'South Dakota',
+      suicide_normalized: 3,
+      accident_normalized: 0,
+      total_normalized: 3,
+      suicide_raw: 272,
+      accident_raw: 0,
+      total_raw: 310,
+    },
+    TN: {
+      name: 'Tennessee',
+      suicide_normalized: 20,
+      accident_normalized: 1,
+      total_normalized: 32,
+      suicide_raw: 2478,
+      accident_raw: 103,
+      total_raw: 3905,
+    },
+    TX: {
+      name: 'Texas',
+      suicide_normalized: 57,
+      accident_normalized: 1,
+      total_normalized: 90,
+      suicide_raw: 6910,
+      accident_raw: 194,
+      total_raw: 10834,
+    },
+    UT: {
+      name: 'Utah',
+      suicide_normalized: 10,
+      accident_normalized: 0,
+      total_normalized: 11,
+      suicide_raw: 1121,
+      accident_raw: 10,
+      total_raw: 1285,
+    },
+    VA: {
+      name: 'Virginia',
+      suicide_normalized: 20,
+      accident_normalized: 1,
+      total_normalized: 29,
+      suicide_raw: 2368,
+      accident_raw: 45,
+      total_raw: 3447,
+    },
+    VT: {
+      name: 'Vermont',
+      suicide_normalized: 2,
+      accident_normalized: 0,
+      total_normalized: 2,
+      suicide_raw: 245,
+      accident_raw: 0,
+      total_raw: 269,
+    },
+    WA: {
+      name: 'Washington',
+      suicide_normalized: 16,
+      accident_normalized: 1,
+      total_normalized: 21,
+      suicide_raw: 1971,
+      accident_raw: 33,
+      total_raw: 2546,
+    },
+    WI: {
+      name: 'Wisconsin',
+      suicide_normalized: 13,
+      accident_normalized: 1,
+      total_normalized: 17,
+      suicide_raw: 1514,
+      accident_raw: 19,
+      total_raw: 1999,
+    },
+    WV: {
+      name: 'West Virginia',
+      suicide_normalized: 7,
+      accident_normalized: 1,
+      total_normalized: 9,
+      suicide_raw: 833,
+      accident_raw: 23,
+      total_raw: 1109,
+    },
+    WY: {
+      name: 'Wyoming',
+      suicide_normalized: 3,
+      accident_normalized: 0,
+      total_normalized: 3,
+      suicide_raw: 358,
+      accident_raw: 13,
+      total_raw: 407,
+    },
   };
 
   /**
@@ -113,7 +512,7 @@ playable1 = (function() {
     updatePersons(selectedState);
 
     canvas.addEventListener('click', onClick);
-    canvas.addEventListener('mousemove', onMouseMove.bind({this: this}));
+    canvas.addEventListener('mousemove', onMouseMove.bind({ this: this }));
   }
 
   /**
@@ -160,15 +559,15 @@ playable1 = (function() {
 
     if (highlight) {
       hasStateHighlight = true;
-    }
-    else {
+    } else {
       hasStateHighlight = false;
     }
 
     if (typeof selected === 'undefined') {
-      console.log('WARNING: playable1.drawStates called without a selected state');
-    }
-    else if (selected && selectedState != selected) {
+      console.log(
+        'WARNING: playable1.drawStates called without a selected state'
+      );
+    } else if (selected && selectedState != selected) {
       selectedState = selected;
 
       // Draw state name
@@ -184,7 +583,10 @@ playable1 = (function() {
       }
 
       drawNumsAnimTime = 0;
-      drawNumsIntervalId = window.setInterval(drawStateNumbers.bind({state: selected}), drawNumsAnimInterval);
+      drawNumsIntervalId = window.setInterval(
+        drawStateNumbers.bind({ state: selected }),
+        drawNumsAnimInterval
+      );
     }
 
     ctx.clearRect(startPosX, startPosY, boxSize * 25, boxSize * 2);
@@ -196,21 +598,20 @@ playable1 = (function() {
       // Reset styles
       ctx.strokeStyle = '#000000';
       ctx.fillStyle = '#000000';
-      
+
       // First half of states on one line, second half below it
       if (i < STATES.length / 2) {
-        currentX = (i * boxSize) + startPosX;
+        currentX = i * boxSize + startPosX;
         currentY = startPosY;
-      }
-      else {
-        currentX = ((i - (STATES.length / 2)) * boxSize) + startPosX;
+      } else {
+        currentX = (i - STATES.length / 2) * boxSize + startPosX;
         currentY = startPosY + boxSize;
       }
 
       // Draw box
       if (STATES[i] == highlight && highlight != selected) {
         ctx.strokeStyle = '#ff0000';
-        ctx.strokeRect(currentX+1, currentY+1, boxSize-2, boxSize-2);
+        ctx.strokeRect(currentX + 1, currentY + 1, boxSize - 2, boxSize - 2);
       }
 
       if (STATES[i] == selected) {
@@ -222,15 +623,17 @@ playable1 = (function() {
       // Draw state abbreviation
       if (STATES[i] == selected) {
         ctx.fillStyle = '#fefefe';
-      }
-      else if (STATES[i] == highlight) {
+      } else if (STATES[i] == highlight) {
         ctx.fillStyle = '#ff0000';
-      }
-      else {
+      } else {
         ctx.fillStyle = '#000000';
       }
 
-      ctx.fillText(STATES[i], currentX + (boxSize / 2), currentY + (boxSize * .75));
+      ctx.fillText(
+        STATES[i],
+        currentX + boxSize / 2,
+        currentY + boxSize * 0.75
+      );
 
       // Store coordinates for click events
       if (isInit) {
@@ -239,7 +642,7 @@ playable1 = (function() {
           xmin: currentX,
           xmax: currentX + boxSize,
           ymin: currentY,
-          ymax: currentY + boxSize
+          ymax: currentY + boxSize,
         };
         stateHitBoxes[stateHitBoxes.length] = hitBox;
       }
@@ -251,10 +654,10 @@ playable1 = (function() {
    */
   function drawStateNumbers() {
     var fontSize = 14;
-    var paddingY = 10
+    var paddingY = 10;
     var startY = 354;
     var labelX = 36;
-    var numX = 200 + fontSize * 5 /*eh, the 5 is arbitrary*/;
+    var numX = 200 + fontSize * 5; /*eh, the 5 is arbitrary*/
     var totalNum;
     var suicideNum;
     var accidentNum;
@@ -265,9 +668,9 @@ playable1 = (function() {
     ctx.fillStyle = blackColor;
     ctx.textAlign = 'left';
 
-    var suicideLineY =  startY + fontSize;
+    var suicideLineY = startY + fontSize;
     var accidentLineY = startY + fontSize + paddingY + fontSize;
-    var totalLineY = startY + ((fontSize + paddingY) * 2) + fontSize;
+    var totalLineY = startY + (fontSize + paddingY) * 2 + fontSize;
 
     // Draw total # label
     ctx.fillText('Suicide:', labelX, suicideLineY);
@@ -284,30 +687,50 @@ playable1 = (function() {
     if (drawNumsAnimTime > drawNumsTotalAnimTime) {
       // Just make sure the final #s are actually drawn
       ctx.fillStyle = blueColor;
-      ctx.fillText(STATE_DATA[this.state].suicide_raw + ' persons', numX, suicideLineY);
+      ctx.fillText(
+        STATE_DATA[this.state].suicide_raw + ' persons',
+        numX,
+        suicideLineY
+      );
 
       ctx.fillStyle = yellowColor;
-      ctx.fillText(STATE_DATA[this.state].accident_raw + ' persons', numX, accidentLineY);
+      ctx.fillText(
+        STATE_DATA[this.state].accident_raw + ' persons',
+        numX,
+        accidentLineY
+      );
 
       ctx.fillStyle = blackColor;
-      ctx.fillText(STATE_DATA[this.state].total_raw + ' persons', numX, totalLineY);
+      ctx.fillText(
+        STATE_DATA[this.state].total_raw + ' persons',
+        numX,
+        totalLineY
+      );
 
       // Done animating
       window.clearInterval(drawNumsIntervalId);
       drawNumsIntervalId = 0;
-    }
-    else {
+    } else {
       drawNumsAnimTime += drawNumsAnimInterval;
 
-      suicideNum = Math.floor(STATE_DATA[this.state].suicide_raw * (drawNumsAnimTime / drawNumsTotalAnimTime));
+      suicideNum = Math.floor(
+        STATE_DATA[this.state].suicide_raw *
+          (drawNumsAnimTime / drawNumsTotalAnimTime)
+      );
       ctx.fillStyle = blueColor;
       ctx.fillText(suicideNum + ' persons', numX, suicideLineY);
 
-      accidentNum = Math.floor(STATE_DATA[this.state].accident_raw * (drawNumsAnimTime / drawNumsTotalAnimTime));
+      accidentNum = Math.floor(
+        STATE_DATA[this.state].accident_raw *
+          (drawNumsAnimTime / drawNumsTotalAnimTime)
+      );
       ctx.fillStyle = yellowColor;
       ctx.fillText(accidentNum + ' persons', numX, accidentLineY);
 
-      totalNum = Math.floor(STATE_DATA[this.state].total_raw * (drawNumsAnimTime / drawNumsTotalAnimTime));
+      totalNum = Math.floor(
+        STATE_DATA[this.state].total_raw *
+          (drawNumsAnimTime / drawNumsTotalAnimTime)
+      );
       ctx.fillStyle = blackColor;
       ctx.fillText(totalNum + ' persons', numX, totalLineY);
     }
@@ -326,7 +749,7 @@ playable1 = (function() {
     // Clear any persons drawn previously
     ctx.clearRect(24, 100, 448, 220);
 
-    intervalId = window.setInterval(drawPerson.bind({state: state}), 20);
+    intervalId = window.setInterval(drawPerson.bind({ state: state }), 20);
   }
 
   /**
@@ -366,9 +789,8 @@ playable1 = (function() {
     }
     // Stop drawing once we hit the total
     else {
-      haltDrawing = currPerson >= STATE_DATA[this.state].total_normalized
+      haltDrawing = currPerson >= STATE_DATA[this.state].total_normalized;
     }
-
 
     if (haltDrawing) {
       window.clearInterval(intervalId);
@@ -381,17 +803,13 @@ playable1 = (function() {
     // Determine row
     if (i < onefifth) {
       row = 0;
-    }
-    else if(i < onefifth * 2) {
+    } else if (i < onefifth * 2) {
       row = 1;
-    }
-    else if (i < onefifth * 3) {
+    } else if (i < onefifth * 3) {
       row = 2;
-    }
-    else if (i < onefifth * 4) {
+    } else if (i < onefifth * 4) {
       row = 3;
-    }
-    else {
+    } else {
       row = 4;
     }
 
@@ -399,16 +817,19 @@ playable1 = (function() {
     img = imgPerson;
     if (i < STATE_DATA[this.state].suicide_normalized) {
       img = imgSuicide;
-    }
-    else if (i >= STATE_DATA[this.state].suicide_normalized &&
-      i < STATE_DATA[this.state].suicide_normalized + STATE_DATA[this.state].accident_normalized) {
+    } else if (
+      i >= STATE_DATA[this.state].suicide_normalized &&
+      i <
+        STATE_DATA[this.state].suicide_normalized +
+          STATE_DATA[this.state].accident_normalized
+    ) {
       img = imgAccident;
     }
 
     xAdjust = onefifth * row;
     // + 2px for padding in between persons
-    currentX = ((i - xAdjust) * (imgWidth + paddingX)) + startPosX;
-    currentY = startPosY + (row * (imgHeight + paddingY));
+    currentX = (i - xAdjust) * (imgWidth + paddingX) + startPosX;
+    currentY = startPosY + row * (imgHeight + paddingY);
 
     ctx.drawImage(img, currentX, currentY, imgWidth, imgHeight);
     currPerson++;
@@ -424,7 +845,7 @@ playable1 = (function() {
       intervalId = undefined;
     }
 
-    var hit = checkHit(event.layerX, event.layerY);
+    var hit = checkHit(event.offsetX, event.offsetY);
     if (hit) {
       updatePersons(hit);
       drawStates(hit, hit, false);
@@ -436,12 +857,11 @@ playable1 = (function() {
    */
   function onMouseMove(event) {
     // Highlight states on hover over
-    var hit = checkHit(event.layerX, event.layerY);
+    var hit = checkHit(event.offsetX, event.offsetY);
     if (hit) {
       drawStates(selectedState, hit, false);
       canvas.style.cursor = 'pointer';
-    }
-    else if (hasStateHighlight) {
+    } else if (hasStateHighlight) {
       drawStates(selectedState, undefined, false);
       canvas.style.cursor = 'default';
     }
@@ -458,10 +878,12 @@ playable1 = (function() {
     var i;
 
     for (i = 0; i < stateHitBoxes.length; i++) {
-      if (x > stateHitBoxes[i].xmin &&
-          x < stateHitBoxes[i].xmax &&
-          y > stateHitBoxes[i].ymin &&
-          y < stateHitBoxes[i].ymax) {
+      if (
+        x > stateHitBoxes[i].xmin &&
+        x < stateHitBoxes[i].xmax &&
+        y > stateHitBoxes[i].ymin &&
+        y < stateHitBoxes[i].ymax
+      ) {
         return stateHitBoxes[i].state;
       }
     }
@@ -472,9 +894,8 @@ playable1 = (function() {
   return {
     hasStarted: hasStarted,
     init: init,
-    run: run
-  }
-
+    run: run,
+  };
 })();
 
 playable1.init();

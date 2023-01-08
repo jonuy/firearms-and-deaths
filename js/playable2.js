@@ -9,8 +9,7 @@
 var playable2;
 var canvas2 = document.getElementById('canvas-2');
 
-playable2 = (function() {
-
+playable2 = (function () {
   var CANVAS_HEIGHT = canvas2.height;
   var CANVAS_WIDTH = canvas2.width;
   var CANVAS_GRID_SIZE = 12;
@@ -32,13 +31,12 @@ playable2 = (function() {
   var COLOR_BUTTON_TEXT = '#ffffff';
   var COLOR_SIM_DEFAULT = '#ff0000';
 
-
   // Canvas and context
   var canvas;
   var ctx;
 
   // Boolean. True if this has already run init().
-  var hasStarted = false
+  var hasStarted = false;
 
   // Boolean. True if started, but paused.
   var isPaused = false;
@@ -133,8 +131,8 @@ playable2 = (function() {
    * mousemove event listener
    */
   function onMouseMove(event) {
-    mouseX = event.layerX;
-    mouseY = event.layerY;
+    mouseX = event.offsetX;
+    mouseY = event.offsetY;
   }
 
   /**
@@ -167,7 +165,7 @@ playable2 = (function() {
     i = 0;
     while (i * CANVAS_GRID_SIZE <= CANVAS_WIDTH) {
       xpos = i * CANVAS_GRID_SIZE;
-      
+
       ctx.beginPath();
       ctx.moveTo(xpos, 0);
       ctx.lineTo(xpos, CANVAS_HEIGHT);
@@ -258,7 +256,7 @@ playable2 = (function() {
     var i;
     var isRunning;
     var text;
-    var isClicked = false;;
+    var isClicked = false;
     var boxWidth = 200;
     var boxHeight = 36;
     var boxMargin = 12;
@@ -267,15 +265,19 @@ playable2 = (function() {
     var yPosBox = boxMargin;
 
     function inButtonBounds(x, y) {
-      return mouseX >= xPosBox && mouseX <= xPosBox + boxWidth &&
-          mouseY >= yPosBox && mouseY <= yPosBox + boxHeight
+      return (
+        mouseX >= xPosBox &&
+        mouseX <= xPosBox + boxWidth &&
+        mouseY >= yPosBox &&
+        mouseY <= yPosBox + boxHeight
+      );
     }
 
     // Check event queue for any clicks
     i = eventQueue.length;
     while (i--) {
       if (eventQueue[i].type == 'click') {
-        if (inButtonBounds(eventQueue[i].layerX, eventQueue[i].layerY)) {
+        if (inButtonBounds(eventQueue[i].offsetX, eventQueue[i].offsetY)) {
           eventQueue.splice(i, 1);
           isClicked = true;
         }
@@ -287,12 +289,10 @@ playable2 = (function() {
       if (simSystem.isRunning()) {
         if (simSystem.isDone()) {
           simSystem.start();
-        }
-        else {
+        } else {
           simSystem.stop();
         }
-      }
-      else {
+      } else {
         simSystem.start();
       }
     }
@@ -301,13 +301,11 @@ playable2 = (function() {
       if (simSystem.isDone()) {
         ctx.fillStyle = COLOR_BUTTON_OFF;
         text = 'RESTART';
-      }
-      else {
+      } else {
         ctx.fillStyle = COLOR_BUTTON_ON;
         text = 'STOP';
       }
-    }
-    else {
+    } else {
       ctx.fillStyle = COLOR_BUTTON_OFF;
       text = 'START';
     }
@@ -317,8 +315,7 @@ playable2 = (function() {
       ctx.fillStyle = COLOR_BUTTON_HOVER;
       hoverOnStartButton = true;
       canvas.style.cursor = 'pointer';
-    }
-    else {
+    } else {
       hoverOnStartButton = false;
       canvas.style.cursor = 'default';
     }
@@ -331,10 +328,11 @@ playable2 = (function() {
     ctx.fillStyle = COLOR_BUTTON_TEXT;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(text, CANVAS_WIDTH / 2, boxMargin + (boxHeight / 2));
+    ctx.fillText(text, CANVAS_WIDTH / 2, boxMargin + boxHeight / 2);
 
     // Draw progress label
-    var progress = vSimSaved + vSimUnsuccessful + vSimFatal + ' / ' + simSize + ' persons';
+    var progress =
+      vSimSaved + vSimUnsuccessful + vSimFatal + ' / ' + simSize + ' persons';
     ctx.font = '12px Helvetica';
     ctx.fillStyle = '#000000';
     ctx.textAlign = 'center';
@@ -362,7 +360,7 @@ playable2 = (function() {
     if (startupInProgress) {
       var startupPctProgress;
 
-      time = (new Date()).getTime();
+      time = new Date().getTime();
       if (startupLastTimeChecked > 0) {
         startupTimeLeft -= time - startupLastTimeChecked;
       }
@@ -373,9 +371,9 @@ playable2 = (function() {
         startupInProgress = false;
         vWithLock = withLockStartVal;
         vLockEffect = lockEffectStartVal;
-      }
-      else {
-        startupPctProgress = (startupDuration - startupTimeLeft) / startupDuration;
+      } else {
+        startupPctProgress =
+          (startupDuration - startupTimeLeft) / startupDuration;
         vWithLock = Math.floor(startupPctProgress * withLockStartVal);
         vLockEffect = Math.floor(startupPctProgress * lockEffectStartVal);
       }
@@ -386,9 +384,8 @@ playable2 = (function() {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-
     // Slider 1 - % of people with gun locks
-    leftMargin = (CANVAS_WIDTH - (lineWidth * 2) - xSliderGap) / 2;
+    leftMargin = (CANVAS_WIDTH - lineWidth * 2 - xSliderGap) / 2;
     xSlider1 = leftMargin;
     // horizontal line
     ctx.fillRect(xSlider1, yTop + 12 - 1, lineWidth, lineSize);
@@ -396,7 +393,11 @@ playable2 = (function() {
     ctx.fillRect(xSlider1, yTop, lineSize, lineEdgeHeight);
     ctx.fillRect(xSlider1 + lineWidth, yTop, lineSize, lineEdgeHeight);
     // text label
-    ctx.fillText('Gun lock usage', xSlider1 + (lineWidth / 2), yTop + lineEdgeHeight + 12);
+    ctx.fillText(
+      'Gun lock usage',
+      xSlider1 + lineWidth / 2,
+      yTop + lineEdgeHeight + 12
+    );
 
     // Slider 2 - % effectiveness of gun locks
     xSlider2 = leftMargin + lineWidth + xSliderGap;
@@ -406,19 +407,27 @@ playable2 = (function() {
     ctx.fillRect(xSlider2, yTop, lineSize, lineEdgeHeight);
     ctx.fillRect(xSlider2 + lineWidth, yTop, lineSize, lineEdgeHeight);
     // text label
-    ctx.fillText('Chance at preventing attempt', xSlider2 + (lineWidth / 2), yTop + lineEdgeHeight + 12);
+    ctx.fillText(
+      'Chance at preventing attempt',
+      xSlider2 + lineWidth / 2,
+      yTop + lineEdgeHeight + 12
+    );
 
     // Slider positions
     function calcSliderPos(xSliderPos, val) {
-      return xSliderPos + (lineWidth * (val / 100) - (sliderWidth / 2));
+      return xSliderPos + (lineWidth * (val / 100) - sliderWidth / 2);
     }
 
     var s1Pos = calcSliderPos(xSlider1, vWithLock);
     var s2Pos = calcSliderPos(xSlider2, vLockEffect);
 
     function isCursorOnSlider(sliderPos, x, y) {
-      return x >= sliderPos && x <= sliderPos + sliderWidth &&
-          y >= yTop && y <= yTop + sliderHeight;
+      return (
+        x >= sliderPos &&
+        x <= sliderPos + sliderWidth &&
+        y >= yTop &&
+        y <= yTop + sliderHeight
+      );
     }
 
     function isCursorOnLine(lx, ly, lw, lh, cx, cy) {
@@ -426,8 +435,22 @@ playable2 = (function() {
     }
 
     // -2 and +4 to give a little more vertical buffer to clicky clicky
-    var isOnLine1 = isCursorOnLine(xSlider1, yTop+12-1-2, lineWidth, lineSize+4, mouseX, mouseY);
-    var isOnLine2 = isCursorOnLine(xSlider2, yTop+12-1-2, lineWidth, lineSize+4, mouseX, mouseY);
+    var isOnLine1 = isCursorOnLine(
+      xSlider1,
+      yTop + 12 - 1 - 2,
+      lineWidth,
+      lineSize + 4,
+      mouseX,
+      mouseY
+    );
+    var isOnLine2 = isCursorOnLine(
+      xSlider2,
+      yTop + 12 - 1 - 2,
+      lineWidth,
+      lineSize + 4,
+      mouseX,
+      mouseY
+    );
     var jumpLine1Val = false;
     var jumpLine2Val = false;
 
@@ -440,22 +463,23 @@ playable2 = (function() {
           isDraggingSlider1 = false;
           isDraggingSlider2 = false;
           eventQueue.splice(i, 1);
-        }
-        else if (isOnLine1) {
+        } else if (isOnLine1) {
           jumpLine1Val = true;
-        }
-        else if (isOnLine2) {
+        } else if (isOnLine2) {
           jumpLine2Val = true;
         }
       }
       // Otherwise we'll look for a click
       else if (eventQueue[i].type == 'mousedown') {
         // Is the click on a slider 1
-        if (isCursorOnSlider(s1Pos, eventQueue[i].layerX, eventQueue[i].layerY)) {
+        if (
+          isCursorOnSlider(s1Pos, eventQueue[i].offsetX, eventQueue[i].offsetY)
+        ) {
           isDraggingSlider1 = true;
           eventQueue.splice(i, 1);
-        }
-        else if (isCursorOnSlider(s2Pos, eventQueue[i].layerX, eventQueue[i].layerY)) {
+        } else if (
+          isCursorOnSlider(s2Pos, eventQueue[i].offsetX, eventQueue[i].offsetY)
+        ) {
           isDraggingSlider2 = true;
           eventQueue.splice(i, 1);
         }
@@ -464,9 +488,12 @@ playable2 = (function() {
 
     if (!lockSliders) {
       // Change style of cursor if hovering over slider
-      if (isDraggingSlider1 || isDraggingSlider2 ||
-          isCursorOnSlider(s1Pos, mouseX, mouseY) ||
-          isCursorOnSlider(s2Pos, mouseX, mouseY)) {
+      if (
+        isDraggingSlider1 ||
+        isDraggingSlider2 ||
+        isCursorOnSlider(s1Pos, mouseX, mouseY) ||
+        isCursorOnSlider(s2Pos, mouseX, mouseY)
+      ) {
         canvas.style.cursor = 'ew-resize';
       }
       // -2 and +4 to give a little more vertical buffer to clicky clicky
@@ -484,18 +511,15 @@ playable2 = (function() {
       vWithLock = Math.round(((mouseX - xSlider1) / lineWidth) * 100);
       if (vWithLock < 0) {
         vWithLock = 0;
-      }
-      else if (vWithLock > 100) {
+      } else if (vWithLock > 100) {
         vWithLock = 100;
       }
       s1Pos = calcSliderPos(xSlider1, vWithLock);
-    }
-    else if (!lockSliders && (isDraggingSlider2 || jumpLine2Val)) {
+    } else if (!lockSliders && (isDraggingSlider2 || jumpLine2Val)) {
       vLockEffect = Math.round(((mouseX - xSlider2) / lineWidth) * 100);
       if (vLockEffect < 0) {
         vLockEffect = 0;
-      }
-      else if (vLockEffect > 100) {
+      } else if (vLockEffect > 100) {
         vLockEffect = 100;
       }
       s2Pos = calcSliderPos(xSlider2, vLockEffect);
@@ -505,12 +529,12 @@ playable2 = (function() {
     // draw Slider 1
     ctx.fillStyle = COLOR_PERSONS_W_LOCK;
     ctx.fillRect(s1Pos, yTop, sliderWidth, sliderHeight);
-    ctx.fillText(vWithLock + '%', s1Pos + (sliderWidth / 2), yTop - 4);
+    ctx.fillText(vWithLock + '%', s1Pos + sliderWidth / 2, yTop - 4);
 
     // draw Slider 2
     ctx.fillStyle = COLOR_GUN_LOCK;
     ctx.fillRect(s2Pos, yTop, sliderWidth, sliderHeight);
-    ctx.fillText(vLockEffect + '%', s2Pos + (sliderWidth / 2), yTop - 4);
+    ctx.fillText(vLockEffect + '%', s2Pos + sliderWidth / 2, yTop - 4);
   }
 
   /**
@@ -532,8 +556,15 @@ playable2 = (function() {
     // Area 1 - circle. Start persons deci
     ctx.beginPath();
     for (i = 0; i < lineWidth; i++) {
-      ctx.ellipse(area1X, area1Y, area1Radius - 1 + i, area1Radius - 1 + i,
-        0 /*rotation*/, 0 /*start angle*/, 2 * Math.PI/*end angle*/);
+      ctx.ellipse(
+        area1X,
+        area1Y,
+        area1Radius - 1 + i,
+        area1Radius - 1 + i,
+        0 /*rotation*/,
+        0 /*start angle*/,
+        2 * Math.PI /*end angle*/
+      );
     }
     ctx.stroke();
     // Label
@@ -551,8 +582,8 @@ playable2 = (function() {
     // Boundary box
     ctx.strokeStyle = COLOR_BOUNDARIES;
     ctx.strokeRect(area2X, area2Y, area2Width, area2Height);
-    ctx.strokeRect(area2X-1, area2Y-1, area2Width+2, area2Height+2);
-    ctx.strokeRect(area2X+1, area2Y+1, area2Width-2, area2Height-2);
+    ctx.strokeRect(area2X - 1, area2Y - 1, area2Width + 2, area2Height + 2);
+    ctx.strokeRect(area2X + 1, area2Y + 1, area2Width - 2, area2Height - 2);
     // Colored side
     ctx.strokeStyle = COLOR_GUN_LOCK;
     for (i = 0; i < 3; i++) {
@@ -566,10 +597,18 @@ playable2 = (function() {
     ctx.font = '14px Helvetica';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
-    ctx.fillText('Need to bypass gun lock', area2X + area2Width / 2, area2Y - 20);
+    ctx.fillText(
+      'Need to bypass gun lock',
+      area2X + area2Width / 2,
+      area2Y - 20
+    );
 
     ctx.fillStyle = '#a0a0a0';
-    ctx.fillText('Chance at prevention:    ', area2X - 4 + area2Width / 2, area2Y - 4);
+    ctx.fillText(
+      'Chance at prevention:    ',
+      area2X - 4 + area2Width / 2,
+      area2Y - 4
+    );
 
     ctx.fillStyle = COLOR_GUN_LOCK;
     ctx.textAlign = 'left';
@@ -583,8 +622,8 @@ playable2 = (function() {
     // Boundary box
     ctx.strokeStyle = COLOR_BOUNDARIES;
     ctx.strokeRect(area3X, area3Y, area3Width, area3Height);
-    ctx.strokeRect(area3X-1, area3Y-1, area3Width+2, area3Height+2);
-    ctx.strokeRect(area3X+1, area3Y+1, area3Width-2, area3Height-2);
+    ctx.strokeRect(area3X - 1, area3Y - 1, area3Width + 2, area3Height + 2);
+    ctx.strokeRect(area3X + 1, area3Y + 1, area3Width - 2, area3Height - 2);
     // Colored side
     ctx.strokeStyle = COLOR_ATTEMPT;
     for (i = 0; i < 3; i++) {
@@ -601,7 +640,11 @@ playable2 = (function() {
     ctx.fillText('Attempt at suicide', area3X + area3Width / 2, area3Y - 20);
 
     ctx.fillStyle = '#a0a0a0';
-    ctx.fillText('Chance of fatality: 85%', area3X + area3Width / 2, area3Y - 4);
+    ctx.fillText(
+      'Chance of fatality: 85%',
+      area3X + area3Width / 2,
+      area3Y - 4
+    );
 
     // Area 4 - Saved
     var area4Width = 156;
@@ -611,8 +654,8 @@ playable2 = (function() {
     // Boundary box
     ctx.strokeStyle = COLOR_BOUNDARIES;
     ctx.strokeRect(area4X, area4Y, area4Width, area4Height);
-    ctx.strokeRect(area4X-1, area4Y-1, area4Width+2, area4Height+2);
-    ctx.strokeRect(area4X+1, area4Y+1, area4Width-2, area4Height-2);
+    ctx.strokeRect(area4X - 1, area4Y - 1, area4Width + 2, area4Height + 2);
+    ctx.strokeRect(area4X + 1, area4Y + 1, area4Width - 2, area4Height - 2);
     // Colored side
     ctx.strokeStyle = COLOR_SAVED;
     for (i = 0; i < 3; i++) {
@@ -626,12 +669,16 @@ playable2 = (function() {
     ctx.textAlign = 'center';
     ctx.font = 'bold 20px Helvetica';
     ctx.textBaseline = 'bottom';
-    ctx.fillText(vSimSaved, area4X + area4Width + 52, area4Y + (area4Height / 2));
+    ctx.fillText(vSimSaved, area4X + area4Width + 52, area4Y + area4Height / 2);
 
     ctx.font = '14px Helvetica';
     ctx.fillStyle = '#000';
     ctx.textBaseline = 'top';
-    ctx.fillText('Lives Saved', area4X + area4Width + 52, area4Y + (area4Height / 2));
+    ctx.fillText(
+      'Lives Saved',
+      area4X + area4Width + 52,
+      area4Y + area4Height / 2
+    );
 
     // Area 5 - Unsuccessful
     var area5Width = 156;
@@ -641,8 +688,8 @@ playable2 = (function() {
     // Boundary box
     ctx.strokeStyle = COLOR_BOUNDARIES;
     ctx.strokeRect(area5X, area5Y, area5Width, area5Height);
-    ctx.strokeRect(area5X-1, area5Y-1, area5Width+2, area5Height+2);
-    ctx.strokeRect(area5X+1, area5Y+1, area5Width-2, area5Height-2);
+    ctx.strokeRect(area5X - 1, area5Y - 1, area5Width + 2, area5Height + 2);
+    ctx.strokeRect(area5X + 1, area5Y + 1, area5Width - 2, area5Height - 2);
     // Colored side
     ctx.strokeStyle = COLOR_UNSUCCESSFUL;
     for (i = 0; i < 3; i++) {
@@ -656,13 +703,25 @@ playable2 = (function() {
     ctx.textAlign = 'center';
     ctx.font = 'bold 20px Helvetica';
     ctx.textBaseline = 'bottom';
-    ctx.fillText(vSimUnsuccessful, area5X + area5Width + 52, area5Y + (area5Height / 2));
+    ctx.fillText(
+      vSimUnsuccessful,
+      area5X + area5Width + 52,
+      area5Y + area5Height / 2
+    );
 
     ctx.font = '14px Helvetica';
     ctx.fillStyle = '#000';
     ctx.textBaseline = 'top';
-    ctx.fillText('Non-Fatal', area5X + area5Width + 52, area5Y + (area5Height / 2));
-    ctx.fillText('Results', area5X + area5Width + 52, area5Y + (area5Height / 2) + 14);
+    ctx.fillText(
+      'Non-Fatal',
+      area5X + area5Width + 52,
+      area5Y + area5Height / 2
+    );
+    ctx.fillText(
+      'Results',
+      area5X + area5Width + 52,
+      area5Y + area5Height / 2 + 14
+    );
 
     // Area 6 - Fatal
     var area6Width = 156;
@@ -672,8 +731,8 @@ playable2 = (function() {
     // Boundary box
     ctx.strokeStyle = COLOR_BOUNDARIES;
     ctx.strokeRect(area6X, area6Y, area6Width, area6Height);
-    ctx.strokeRect(area6X-1, area6Y-1, area6Width+2, area6Height+2);
-    ctx.strokeRect(area6X+1, area6Y+1, area6Width-2, area6Height-2);
+    ctx.strokeRect(area6X - 1, area6Y - 1, area6Width + 2, area6Height + 2);
+    ctx.strokeRect(area6X + 1, area6Y + 1, area6Width - 2, area6Height - 2);
     // Colored side
     ctx.strokeStyle = COLOR_FATAL;
     for (i = 0; i < 3; i++) {
@@ -687,13 +746,17 @@ playable2 = (function() {
     ctx.textAlign = 'center';
     ctx.font = 'bold 20px Helvetica';
     ctx.textBaseline = 'bottom';
-    ctx.fillText(vSimFatal, area6X + area6Width + 52, area6Y + (area6Height / 2));
+    ctx.fillText(vSimFatal, area6X + area6Width + 52, area6Y + area6Height / 2);
 
     ctx.font = '14px Helvetica';
     ctx.fillStyle = '#000';
     ctx.textBaseline = 'top';
-    ctx.fillText('Fatal', area6X + area6Width + 52, area6Y + (area6Height / 2));
-    ctx.fillText('Results', area6X + area6Width + 52, area6Y + (area6Height / 2) + 14);
+    ctx.fillText('Fatal', area6X + area6Width + 52, area6Y + area6Height / 2);
+    ctx.fillText(
+      'Results',
+      area6X + area6Width + 52,
+      area6Y + area6Height / 2 + 14
+    );
   }
 
   /**
@@ -709,7 +772,7 @@ playable2 = (function() {
     this.running = false;
 
     // Define the spawn area
-    var spawnArea = {x: 102, y: 310, r: 90};
+    var spawnArea = { x: 102, y: 310, r: 90 };
 
     // Timing things
     var SPAWN_INTERVAL = 200;
@@ -729,8 +792,8 @@ playable2 = (function() {
         pending[pending.length] = new Person();
       }
 
-      lastTimeUpdated = (new Date()).getTime();
-      timeUntilNextSpawn
+      lastTimeUpdated = new Date().getTime();
+      timeUntilNextSpawn;
 
       this.running = true;
 
@@ -746,7 +809,7 @@ playable2 = (function() {
       var countUnsuccessful = 0;
       var countFatal = 0;
 
-      time = (new Date()).getTime();
+      time = new Date().getTime();
       deltaTime = time - lastTimeUpdated;
       lastTimeUpdated = time;
 
@@ -759,7 +822,11 @@ playable2 = (function() {
         timeUntilNextSpawn = SPAWN_INTERVAL;
 
         // Choose random spawn position
-        spawnPos = _randomSpawnPosition(spawnArea.x, spawnArea.y, spawnArea.r - 10);
+        spawnPos = _randomSpawnPosition(
+          spawnArea.x,
+          spawnArea.y,
+          spawnArea.r - 10
+        );
 
         tmp.spawn(spawnPos.x, spawnPos.y);
       }
@@ -770,11 +837,9 @@ playable2 = (function() {
 
         if (done[i].isSaved()) {
           countSave++;
-        }
-        else if (done[i].isUnsuccessful()) {
+        } else if (done[i].isUnsuccessful()) {
           countUnsuccessful++;
-        }
-        else if (done[i].isFatal()) {
+        } else if (done[i].isFatal()) {
           countFatal++;
         }
       }
@@ -825,19 +890,21 @@ playable2 = (function() {
 
       return {
         x: x + x1,
-        y: y + y1
+        y: y + y1,
       };
     }
 
     return {
-      isRunning: function() {return this.running;},
-      isDone: function() {
+      isRunning: function () {
+        return this.running;
+      },
+      isDone: function () {
         return vSimSaved + vSimFatal + vSimUnsuccessful == simSize;
       },
       init: init,
       run: run,
       start: start,
-      stop: stop
+      stop: stop,
     };
   }
 
@@ -882,7 +949,9 @@ playable2 = (function() {
       var color = hasGunLock ? COLOR_PERSONS_W_LOCK : COLOR_PERSONS_DEFAULT;
 
       // Scale size based on how much time is left
-      currSize = Math.floor(((spawnDuration - timeUntilNextState) / spawnDuration) * size);
+      currSize = Math.floor(
+        ((spawnDuration - timeUntilNextState) / spawnDuration) * size
+      );
       _drawPerson(position.x, position.y, currSize, color);
     }
 
@@ -897,8 +966,7 @@ playable2 = (function() {
 
       if (typeof colorOverride === 'undefined') {
         color = hasGunLock ? COLOR_PERSONS_W_LOCK : COLOR_PERSONS_DEFAULT;
-      }
-      else {
+      } else {
         color = colorOverride;
       }
 
@@ -911,15 +979,14 @@ playable2 = (function() {
       var color = hasGunLock ? COLOR_PERSONS_W_LOCK : COLOR_PERSONS_DEFAULT;
       var totalSimTime = simDuration * (simValue / 100);
 
-      arcPct = ((totalSimTime - timeUntilNextState) / totalSimTime) * (simValue / 100);
+      arcPct =
+        ((totalSimTime - timeUntilNextState) / totalSimTime) * (simValue / 100);
 
       if (state == States.TRY_LOCK) {
         colorSim = COLOR_GUN_LOCK;
-      }
-      else if (state == States.TRY_ATTEMPT) {
+      } else if (state == States.TRY_ATTEMPT) {
         colorSim = COLOR_ATTEMPT;
-      }
-      else {
+      } else {
         colorSim = COLOR_SIM_DEFAULT;
       }
 
@@ -928,8 +995,10 @@ playable2 = (function() {
 
     function drawMove(colorOverride) {
       var pctMove = (moveDuration - timeUntilNextState) / moveDuration;
-      position.x = moveFromPosition.x + ((moveToPosition.x - moveFromPosition.x) * pctMove);
-      position.y = moveFromPosition.y + ((moveToPosition.y - moveFromPosition.y) * pctMove);
+      position.x =
+        moveFromPosition.x + (moveToPosition.x - moveFromPosition.x) * pctMove;
+      position.y =
+        moveFromPosition.y + (moveToPosition.y - moveFromPosition.y) * pctMove;
 
       drawActive(colorOverride);
     }
@@ -946,23 +1015,20 @@ playable2 = (function() {
           state = States.SPAWN_TRANSITION;
           timeUntilNextState = spawnTransitionDuration;
         }
-      }
-      else if (state == States.SPAWN_TRANSITION) {
+      } else if (state == States.SPAWN_TRANSITION) {
         drawSpawnTransition();
 
         if (timeUntilNextState < 0) {
           if (hasGunLock) {
             state = States.MOVE_TO_GUN_LOCK;
-          }
-          else {
+          } else {
             state = States.MOVE_TO_ATTEMPT;
           }
 
           timeUntilNextState = moveDuration;
           _prepMove(state);
         }
-      }
-      else if (state == States.MOVE_TO_GUN_LOCK) {
+      } else if (state == States.MOVE_TO_GUN_LOCK) {
         drawMove();
 
         if (timeUntilNextState < 0) {
@@ -975,8 +1041,7 @@ playable2 = (function() {
 
           timeUntilNextState = simDuration * (simValue / 100);
         }
-      }
-      else if (state == States.MOVE_TO_ATTEMPT) {
+      } else if (state == States.MOVE_TO_ATTEMPT) {
         drawMove();
 
         if (timeUntilNextState < 0) {
@@ -989,8 +1054,7 @@ playable2 = (function() {
 
           timeUntilNextState = simDuration * (simValue / 100);
         }
-      }
-      else if (state == States.TRY_LOCK) {
+      } else if (state == States.TRY_LOCK) {
         drawSim();
 
         if (timeUntilNextState < 0) {
@@ -1007,8 +1071,7 @@ playable2 = (function() {
           timeUntilNextState = moveDuration;
           _prepMove(state);
         }
-      }
-      else if (state == States.TRY_ATTEMPT) {
+      } else if (state == States.TRY_ATTEMPT) {
         drawSim();
 
         if (timeUntilNextState < 0) {
@@ -1024,49 +1087,42 @@ playable2 = (function() {
           timeUntilNextState = moveDuration;
           _prepMove(state);
         }
-      }
-      else if (state == States.MOVE_TO_SAVED) {
+      } else if (state == States.MOVE_TO_SAVED) {
         drawMove(COLOR_SAVED);
 
         if (timeUntilNextState < 0) {
           state = States.DONE_SAVED;
         }
-      }
-      else if (state == States.MOVE_TO_UNSUCCESSFUL) {
+      } else if (state == States.MOVE_TO_UNSUCCESSFUL) {
         drawMove(COLOR_UNSUCCESSFUL);
 
         if (timeUntilNextState < 0) {
           state = States.DONE_UNSUCCESSFUL;
         }
-      }
-      else if (state == States.MOVE_TO_FATAL) {
+      } else if (state == States.MOVE_TO_FATAL) {
         drawMove(COLOR_FATAL);
 
         if (timeUntilNextState < 0) {
           state = States.DONE_FATAL;
         }
-      }
-      else if (state == States.DONE_SAVED) {
+      } else if (state == States.DONE_SAVED) {
         drawActive(COLOR_SAVED);
-      }
-      else if (state == States.DONE_UNSUCCESSFUL) {
+      } else if (state == States.DONE_UNSUCCESSFUL) {
         drawActive(COLOR_UNSUCCESSFUL);
-      }
-      else if (state == States.DONE_FATAL) {
+      } else if (state == States.DONE_FATAL) {
         drawActive(COLOR_FATAL);
       }
     }
 
     function spawn(x, y) {
       debugLog('spawn: ' + x + ', ' + y);
-      position = {x: x, y: y};
+      position = { x: x, y: y };
       state = States.SPAWNING;
       timeUntilNextState = spawnDuration;
 
       if (Math.random() > vWithLock / 100) {
         hasGunLock = false;
-      }
-      else {
+      } else {
         hasGunLock = true;
       }
     }
@@ -1080,9 +1136,16 @@ playable2 = (function() {
       ctx.fill();
 
       if (typeof simPct !== 'undefined') {
-        arc = (2 * Math.PI * simPct) - (Math.PI / 2);
+        arc = 2 * Math.PI * simPct - Math.PI / 2;
         ctx.beginPath();
-        ctx.arc(position.x, position.y, currSize, -1 * (Math.PI / 2), arc, false);
+        ctx.arc(
+          position.x,
+          position.y,
+          currSize,
+          -1 * (Math.PI / 2),
+          arc,
+          false
+        );
         ctx.lineWidth = 2;
         ctx.strokeStyle = simColor;
         ctx.stroke();
@@ -1105,26 +1168,22 @@ playable2 = (function() {
         y = 208;
         width = 128;
         height = 70;
-      }
-      else if (nextState == States.MOVE_TO_ATTEMPT) {
+      } else if (nextState == States.MOVE_TO_ATTEMPT) {
         x = 228;
         y = 332;
         width = 128;
         height = 70;
-      }
-      else if (nextState == States.MOVE_TO_UNSUCCESSFUL) {
+      } else if (nextState == States.MOVE_TO_UNSUCCESSFUL) {
         x = 396;
         y = 271;
         width = 146;
         height = 70;
-      }
-      else if (nextState == States.MOVE_TO_FATAL) {
+      } else if (nextState == States.MOVE_TO_FATAL) {
         x = 396;
         y = 346;
         width = 146;
         height = 70;
-      }
-      else if (nextState == States.MOVE_TO_SAVED) {
+      } else if (nextState == States.MOVE_TO_SAVED) {
         x = 396;
         y = 196;
         width = 146;
@@ -1136,14 +1195,18 @@ playable2 = (function() {
       moveFromPosition.y = position.y;
 
       moveToPosition = {};
-      moveToPosition.x = x + margin + Math.floor(Math.random() * (width - margin * 2));
-      moveToPosition.y = y + margin + Math.floor(Math.random() * (height - margin * 2));
+      moveToPosition.x =
+        x + margin + Math.floor(Math.random() * (width - margin * 2));
+      moveToPosition.y =
+        y + margin + Math.floor(Math.random() * (height - margin * 2));
     }
 
     function isDone() {
-      return state == States.DONE_SAVED ||
-          state == States.DONE_UNSUCCESSFUL ||
-          state == States.DONE_FATAL;
+      return (
+        state == States.DONE_SAVED ||
+        state == States.DONE_UNSUCCESSFUL ||
+        state == States.DONE_FATAL
+      );
     }
 
     function isSaved() {
@@ -1165,7 +1228,7 @@ playable2 = (function() {
       isFatal: isFatal,
       reset: reset,
       run: run,
-      spawn: spawn
+      spawn: spawn,
     };
   }
 
@@ -1174,10 +1237,10 @@ playable2 = (function() {
     start: start,
     pause: pause,
     resume: resume,
-    hasStarted: function() {
+    hasStarted: function () {
       return hasStarted;
     },
-    isPaused: function() {
+    isPaused: function () {
       return isPaused;
     },
   };
